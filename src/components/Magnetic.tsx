@@ -1,6 +1,7 @@
 import { useRef, type ReactNode, type ElementType, type ComponentPropsWithoutRef } from 'react';
 import gsap from 'gsap';
 import { useDeviceCapability } from '../hooks/useDeviceCapability';
+import { playHoverSound } from '../utils/audio';
 
 interface MagneticProps<T extends ElementType> {
   as?: T;
@@ -60,6 +61,9 @@ export function Magnetic<T extends ElementType = 'a'>({
     <Tag
       ref={ref}
       className={className}
+      onMouseEnter={() => {
+        if (active) playHoverSound();
+      }}
       onMouseMove={handleMove}
       onMouseLeave={handleLeave}
       {...linkProps}

@@ -36,8 +36,9 @@ export function useScrollReveal<T extends HTMLElement>(options: RevealOptions) {
           ease: 'power3.out',
           scrollTrigger: {
             trigger: el,
-            start: 'top 82%',
-            toggleActions: 'play none none reverse',
+            start: 'top 90%',
+            toggleActions: 'play none none none',
+            once: true,
           },
         }
       );

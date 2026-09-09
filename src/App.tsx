@@ -12,6 +12,9 @@ import { Journey } from './sections/Journey';
 import { Contact } from './sections/Contact';
 import { useDeviceCapability } from './hooks/useDeviceCapability';
 import { useTouchSwipe } from './hooks/useTouchSwipe';
+import { CommandPalette } from './components/CommandPalette';
+import { CyberTerminal } from './components/CyberTerminal';
+import { Toast } from './components/Toast';
 
 function App() {
   const { prefersReducedMotion } = useDeviceCapability();
@@ -45,6 +48,9 @@ function App() {
         <Journey />
         <Contact />
       </main>
+      <CommandPalette />
+      <CyberTerminal />
+      <Toast />
     </>
   );
 }

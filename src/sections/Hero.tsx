@@ -4,7 +4,9 @@ import { profile } from '../data/profile';
 import { useDeviceCapability } from '../hooks/useDeviceCapability';
 import { Magnetic } from '../components/Magnetic';
 import { SplitText } from '../components/SplitText';
-import { HeroOrbitalCanvas } from '../components/HeroOrbitalCanvas';
+import { HeroOrbitalCanvas, type CanvasControlsState } from '../components/HeroOrbitalCanvas';
+import { HeroCanvasControls } from '../components/HeroCanvasControls';
+import { useState } from 'react';
 
 const HEADLINE_LINES = [
   { text: "HELLO. I'M", delay: 0.2  },
@@ -15,6 +17,11 @@ const HEADLINE_LINES = [
 export function Hero() {
   const { prefersReducedMotion, ready } = useDeviceCapability();
   const subRef = useRef<HTMLDivElement | null>(null);
+  const [controls, setControls] = useState<CanvasControlsState>({
+    geometry: 'sphere',
+    speed: 1,
+    density: 'standard',
+  });
 
   /* Sub-content fade — still a single tween, not using SplitText */
   useEffect(() => {
@@ -78,9 +85,10 @@ export function Hero() {
           </div>
         </div>
 
-        {/* Right: Interactive 3D Orbital Wireframe Canvas */}
-        <div className="hidden lg:flex items-center justify-center">
-          <HeroOrbitalCanvas />
+        {/* Right: Interactive 3D Orbital Wireframe Canvas & HUD Controls */}
+        <div className="hidden lg:flex flex-col items-center justify-center relative gap-4">
+          <HeroOrbitalCanvas controls={controls} />
+          <HeroCanvasControls controls={controls} onChange={setControls} />
         </div>
       </div>
     </section>

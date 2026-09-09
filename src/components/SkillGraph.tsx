@@ -1,6 +1,30 @@
 import { useState } from 'react';
 import { skillGroups } from '../data/profile';
 import { useDeviceCapability } from '../hooks/useDeviceCapability';
+import { triggerOpenProject } from '../utils/events';
+import { playHoverSound, playSelectSound } from '../utils/audio';
+
+// Skill to Project Cross-Referencing Map
+const SKILL_PROJECT_MAP: Record<string, { name: string; tag: string }[]> = {
+  'fe-0': [{ name: 'Terra Live', tag: 'Vector Dashboard' }], // React.js
+  'fe-1': [
+    { name: 'Terra Live', tag: 'Full-Stack' },
+    { name: 'Solaris', tag: '3D Simulation' },
+    { name: 'WebLens', tag: 'AI Vision' },
+  ], // TypeScript
+  'fe-2': [{ name: 'Solaris', tag: 'InstancedMesh WebGL' }], // Three.js & R3F
+  'fe-3': [{ name: 'WebLens', tag: 'Chrome MV3' }], // JavaScript
+  'fe-4': [{ name: 'Terra Live', tag: 'HUD Layout' }], // Tailwind CSS
+  'be-1': [
+    { name: 'Terra Live', tag: 'FastAPI Stream' },
+    { name: 'WebLens', tag: 'Gemini Backend' },
+  ], // Python & FastAPI
+  'be-4': [{ name: 'Terra Live', tag: 'LRU Spatial Cache' }], // SQLite
+  'be-5': [{ name: 'Terra Live', tag: 'GeoJSON REST' }, { name: 'WebLens', tag: 'Vision API' }], // REST APIs
+  'mo-0': [{ name: 'WebLens', tag: 'Screen Intelligence' }], // Chrome Extension APIs
+  'mo-3': [{ name: 'Solaris', tag: 'Rayleigh Scattering' }], // GLSL Shaders
+  'mo-4': [{ name: 'Terra Live', tag: 'VCS & CI' }, { name: 'Solaris', tag: 'Repo' }, { name: 'WebLens', tag: 'Repo' }], // Git & GitHub
+};
 
 // Precision layout coordinates for 1000 x 560 viewBox
 // Balanced 16:9 widescreen ratio that fits inside a single scroll-snap viewport
@@ -311,17 +335,20 @@ export function SkillGraph() {
             return g.subs.map((sub) => {
               const isSubHovered = hoveredSub === sub.id;
 
+              const projectsLinked = SKILL_PROJECT_MAP[sub.id] || [];
+
               return (
                 <div
                   key={`sub-node-${sub.id}`}
                   onMouseEnter={() => {
                     setHoveredSub(sub.id);
                     setActiveGroup(g.id);
+                    playHoverSound();
                   }}
                   onMouseLeave={() => setHoveredSub(null)}
                   className={`absolute px-2.5 py-1.5 rounded-lg border text-xs font-mono transition-all duration-300 pointer-events-auto whitespace-nowrap shadow-sm select-none ${
                     isSubHovered
-                      ? 'bg-ink border-accent text-accent scale-110 shadow-[0_0_15px_rgba(217,142,63,0.25)] z-40'
+                      ? 'bg-ink border-accent text-accent scale-105 shadow-[0_0_15px_rgba(217,142,63,0.25)] z-40'
                       : isSelected
                       ? 'bg-ink/95 border-line-strong text-text hover:border-accent z-20'
                       : isDimmed
@@ -334,7 +361,7 @@ export function SkillGraph() {
                     transform: 'translate(-50%, -50%)',
                   }}
                 >
-                  <span className="flex items-center gap-1.5">
+                  <div className="flex items-center gap-2">
                     <span
                       className={`w-1.5 h-1.5 rounded-full ${
                         isSubHovered
@@ -344,8 +371,30 @@ export function SkillGraph() {
                           : 'bg-line-strong'
                       }`}
                     />
-                    {sub.label}
-                  </span>
+                    <span>{sub.label}</span>
+
+                    {/* Quick Cross-Link Pill on hover */}
+                    {isSubHovered && projectsLinked.length > 0 && (
+                      <div className="flex items-center gap-1 ml-1.5 pl-2 border-l border-line-strong">
+                        <span className="text-[9px] text-text-dim uppercase tracking-wider">PROJECT:</span>
+                        {projectsLinked.map((proj) => (
+                          <button
+                            key={proj.name}
+                            type="button"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              playSelectSound();
+                              document.getElementById('projects')?.scrollIntoView({ behavior: 'smooth' });
+                              setTimeout(() => triggerOpenProject(proj.name), 350);
+                            }}
+                            className="text-[10px] bg-accent/20 hover:bg-accent hover:text-ink text-accent px-1.5 py-0.5 rounded border border-accent/40 transition-colors cursor-pointer"
+                          >
+                            {proj.name} ↗
+                          </button>
+                        ))}
+                      </div>
+                    )}
+                  </div>
                 </div>
               );
             });

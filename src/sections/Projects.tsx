@@ -1,12 +1,95 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Reveal } from '../components/Reveal';
 import { Magnetic } from '../components/Magnetic';
 import { ProjectCardPreview } from '../components/ProjectCardPreview';
 import { ProjectDrawer } from '../components/ProjectDrawer';
 import { projects, type Project } from '../data/projects';
+import { playSelectSound } from '../utils/audio';
+import { showToast } from '../hooks/useToast';
 
 export function Projects() {
   const [activeProject, setActiveProject] = useState<Project | null>(null);
+
+  // Listen for open-project-drawer events & Direct URL Hash Deep-Linking
+  useEffect(() => {
+    const handleOpenProject = (e: Event) => {
+      const custom = e as CustomEvent<{ identifier: string | number }>;
+      const target = custom.detail?.identifier;
+      if (!target) return;
+
+      const targetStr = String(target).toLowerCase().trim();
+      const targetClean = targetStr.replace(/[\s-_]+/g, '');
+
+      const found = projects.find((p) => {
+        const nameLower = p.name.toLowerCase();
+        const nameClean = nameLower.replace(/[\s-_]+/g, '');
+        const slug = nameLower.replace(/\s+/g, '-');
+        return (
+          nameLower === targetStr ||
+          nameClean === targetClean ||
+          slug === targetStr ||
+          p.index === targetStr ||
+          nameLower.includes(targetStr) ||
+          targetStr.includes(nameClean) ||
+          targetClean.includes(nameClean)
+        );
+      });
+
+      if (found) {
+        setActiveProject(found);
+      }
+    };
+
+    // Check direct deep-linking URL hash (e.g. /#solaris or /#terra-live)
+    const checkHash = () => {
+      const hash = window.location.hash.replace(/^#/, '').toLowerCase().trim();
+      if (!hash) return;
+
+      const found = projects.find((p) => {
+        const slug = p.name.toLowerCase().replace(/\s+/g, '-');
+        const compact = p.name.toLowerCase().replace(/\s+/g, '');
+        return (
+          hash === slug ||
+          hash === compact ||
+          hash === `project-${p.index.toLowerCase()}` ||
+          hash === `project-${projects.indexOf(p)}`
+        );
+      });
+
+      if (found) {
+        setActiveProject(found);
+        const idx = projects.indexOf(found);
+        setTimeout(() => {
+          document.getElementById(`project-${idx}`)?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }, 150);
+        showToast(`Deep-linked: ${found.name} specs`, 'accent');
+      }
+    };
+
+    checkHash();
+    window.addEventListener('hashchange', checkHash);
+    window.addEventListener('open-project-drawer', handleOpenProject);
+    return () => {
+      window.removeEventListener('hashchange', checkHash);
+      window.removeEventListener('open-project-drawer', handleOpenProject);
+    };
+  }, []);
+
+  // Sync address bar URL hash with active case study drawer
+  useEffect(() => {
+    if (activeProject) {
+      const slug = activeProject.name.toLowerCase().replace(/\s+/g, '-');
+      history.replaceState(null, '', `#${slug}`);
+    } else {
+      const currentHash = window.location.hash.replace(/^#/, '');
+      const isProjectHash = projects.some(
+        (p) => p.name.toLowerCase().replace(/\s+/g, '-') === currentHash,
+      );
+      if (isProjectHash) {
+        history.replaceState(null, '', '#projects');
+      }
+    }
+  }, [activeProject]);
 
   return (
     <section id="projects" className="relative">
@@ -37,7 +120,10 @@ export function Projects() {
                 image={project.image}
                 name={project.name}
                 badge={project.statusBadge}
-                onSelect={() => setActiveProject(project)}
+                onSelect={() => {
+                  playSelectSound();
+                  setActiveProject(project);
+                }}
               />
 
               <div className="w-full lg:w-1/2">
@@ -68,7 +154,10 @@ export function Projects() {
                   <Magnetic
                     as="button"
                     type="button"
-                    onClick={() => setActiveProject(project)}
+                    onClick={() => {
+                      playSelectSound();
+                      setActiveProject(project);
+                    }}
                     className="bg-accent/15 border border-accent/60 hover:bg-accent text-accent hover:text-ink font-medium px-4 py-2 rounded-full text-xs transition-all duration-300 inline-flex items-center gap-2 cursor-pointer"
                   >
                     <span>Architecture Specs</span>

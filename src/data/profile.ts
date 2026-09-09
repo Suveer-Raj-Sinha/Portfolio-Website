@@ -29,3 +29,23 @@ export const skillGroups = [
     items: ['Flutter & Dart', 'Kotlin & Java', 'GLSL Shaders', 'Chrome Extension APIs', 'Git & GitHub'],
   },
 ];
+
+export interface Soundtrack {
+  title: string;
+  artist: string;
+  url: string;
+}
+
+export const soundtracks: Soundtrack[] = [
+  {
+    title: 'Amor',
+    artist: 'Derik Fein',
+    url: 'https://www.youtube.com/watch?v=0pOGto31Hts',
+  },
+  {
+    title: 'Glimpse of Us',
+    artist: 'Joji',
+    url: 'https://www.youtube.com/watch?v=NgsWGfUlwJI',
+  },
+];
+

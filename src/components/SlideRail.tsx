@@ -1,4 +1,5 @@
-import { useEffect, useState, useCallback } from 'react';
+import { useEffect, useState, useCallback, useRef } from 'react';
+import { playSlideSound } from '../utils/audio';
 
 export const SLIDES = [
   { id: 'hero', label: 'Hero', num: '01' },
@@ -15,6 +16,16 @@ export const SLIDES = [
 export function SlideRail() {
   const [activeSlide, setActiveSlide] = useState<string>('hero');
   const [hoveredSlide, setHoveredSlide] = useState<string | null>(null);
+  const isInitialMount = useRef(true);
+
+  // Play subtle pneumatic slide transition sound when changing slides
+  useEffect(() => {
+    if (isInitialMount.current) {
+      isInitialMount.current = false;
+      return;
+    }
+    playSlideSound();
+  }, [activeSlide]);
 
   // Active slide observer
   useEffect(() => {
@@ -49,9 +60,10 @@ export function SlideRail() {
   // Keyboard navigation
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
-      // Don't capture when typing in inputs or textareas
+      // Don't capture when typing in inputs or textareas, or when a modal dialog is open
       const tag = (e.target as HTMLElement)?.tagName?.toLowerCase();
       if (tag === 'input' || tag === 'textarea') return;
+      if (document.body.style.overflow === 'hidden' || document.querySelector('[role="dialog"]')) return;
 
       const currentIndex = SLIDES.findIndex((s) => s.id === activeSlide);
       if (currentIndex === -1) return;

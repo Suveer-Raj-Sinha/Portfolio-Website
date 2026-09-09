@@ -1,8 +1,10 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState, useCallback } from 'react';
 import gsap from 'gsap';
 import type { Project } from '../data/projects';
 import { Magnetic } from './Magnetic';
 import { useDeviceCapability } from '../hooks/useDeviceCapability';
+import { playDrawerSound, playSuccessSound } from '../utils/audio';
+import { showToast } from '../hooks/useToast';
 
 interface ProjectDrawerProps {
   project: Project | null;
@@ -24,6 +26,7 @@ export function ProjectDrawer({ project: requestedProject, onClose }: ProjectDra
         window.clearTimeout(closeTimeoutRef.current);
         closeTimeoutRef.current = null;
       }
+      playDrawerSound();
       setRenderedProject(requestedProject);
       setIsClosing(false);
     } else if (renderedProject && !isClosing) {
@@ -44,7 +47,7 @@ export function ProjectDrawer({ project: requestedProject, onClose }: ProjectDra
     };
   }, []);
 
-  const handleClose = () => {
+  const handleClose = useCallback(() => {
     if (!renderedProject || isClosing) return;
 
     if (prefersReducedMotion) {
@@ -59,7 +62,7 @@ export function ProjectDrawer({ project: requestedProject, onClose }: ProjectDra
       setIsClosing(false);
     }, 350);
     onClose();
-  };
+  }, [renderedProject, isClosing, prefersReducedMotion, onClose]);
 
   // Close on Escape key
   useEffect(() => {
@@ -70,7 +73,7 @@ export function ProjectDrawer({ project: requestedProject, onClose }: ProjectDra
     };
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [renderedProject, isClosing, prefersReducedMotion, onClose]);
+  }, [renderedProject, handleClose]);
 
   // Lock body scroll when drawer is open
   useEffect(() => {
@@ -152,23 +155,43 @@ export function ProjectDrawer({ project: requestedProject, onClose }: ProjectDra
             )}
           </div>
 
-          <button
-            ref={closeBtnRef}
-            type="button"
-            onClick={handleClose}
-            className="w-9 h-9 rounded-lg border border-line hover:border-accent bg-panel hover:bg-panel-raised flex items-center justify-center text-text-muted hover:text-accent transition-colors cursor-pointer group"
-            aria-label="Close project case study drawer"
-          >
-            <svg
-              className="w-4 h-4 transition-transform group-hover:rotate-90 duration-200"
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke="currentColor"
-              strokeWidth="2"
+          <div className="flex items-center gap-2">
+            <button
+              type="button"
+              onClick={() => {
+                const slug = project.name.toLowerCase().replace(/\s+/g, '-');
+                const shareUrl = `${window.location.origin}/#${slug}`;
+                navigator.clipboard.writeText(shareUrl);
+                playSuccessSound();
+                showToast(`Share link copied: /#${slug}`, 'success');
+              }}
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-line hover:border-accent bg-panel hover:bg-panel-raised text-[11px] mono-label text-text-muted hover:text-accent transition-colors cursor-pointer"
+              title="Copy direct share link for this case study"
             >
-              <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
-            </svg>
-          </button>
+              <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
+                <path strokeLinecap="round" strokeLinejoin="round" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1" />
+              </svg>
+              <span className="hidden sm:inline">Share Specs</span>
+            </button>
+
+            <button
+              ref={closeBtnRef}
+              type="button"
+              onClick={handleClose}
+              className="w-9 h-9 rounded-lg border border-line hover:border-accent bg-panel hover:bg-panel-raised flex items-center justify-center text-text-muted hover:text-accent transition-colors cursor-pointer group"
+              aria-label="Close project case study drawer"
+            >
+              <svg
+                className="w-4 h-4 transition-transform group-hover:rotate-90 duration-200"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+                strokeWidth="2"
+              >
+                <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+              </svg>
+            </button>
+          </div>
         </div>
 
         {/* Scrollable Body */}
