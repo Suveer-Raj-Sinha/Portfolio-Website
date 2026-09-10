@@ -6,13 +6,17 @@ import { playHoverSound, playSelectSound } from '../utils/audio';
 
 // Skill to Project Cross-Referencing Map
 const SKILL_PROJECT_MAP: Record<string, { name: string; tag: string }[]> = {
-  'fe-0': [{ name: 'Terra Live', tag: 'Vector Dashboard' }], // React.js
+  'fe-0': [{ name: 'Tesseract 3D', tag: 'R3F Canvas' }, { name: 'Terra Live', tag: 'Dashboard' }], // React
   'fe-1': [
+    { name: 'Tesseract 3D', tag: 'GPGPU Engine' },
     { name: 'Terra Live', tag: 'Full-Stack' },
     { name: 'Solaris', tag: '3D Simulation' },
     { name: 'WebLens', tag: 'AI Vision' },
   ], // TypeScript
-  'fe-2': [{ name: 'Solaris', tag: 'InstancedMesh WebGL' }], // Three.js & R3F
+  'fe-2': [
+    { name: 'Tesseract 3D', tag: 'GPGPU Particle FBO' },
+    { name: 'Solaris', tag: 'InstancedMesh WebGL' },
+  ], // Three.js & R3F
   'fe-3': [{ name: 'WebLens', tag: 'Chrome MV3' }], // JavaScript
   'fe-4': [{ name: 'Terra Live', tag: 'HUD Layout' }], // Tailwind CSS
   'be-1': [
@@ -22,8 +26,16 @@ const SKILL_PROJECT_MAP: Record<string, { name: string; tag: string }[]> = {
   'be-4': [{ name: 'Terra Live', tag: 'LRU Spatial Cache' }], // SQLite
   'be-5': [{ name: 'Terra Live', tag: 'GeoJSON REST' }, { name: 'WebLens', tag: 'Vision API' }], // REST APIs
   'mo-0': [{ name: 'WebLens', tag: 'Screen Intelligence' }], // Chrome Extension APIs
-  'mo-3': [{ name: 'Solaris', tag: 'Rayleigh Scattering' }], // GLSL Shaders
-  'mo-4': [{ name: 'Terra Live', tag: 'VCS & CI' }, { name: 'Solaris', tag: 'Repo' }, { name: 'WebLens', tag: 'Repo' }], // Git & GitHub
+  'mo-3': [
+    { name: 'Tesseract 3D', tag: 'Curl Noise Shaders' },
+    { name: 'Solaris', tag: 'Rayleigh Scattering' },
+  ], // GLSL Shaders
+  'mo-4': [
+    { name: 'Tesseract 3D', tag: 'Repo' },
+    { name: 'Solaris', tag: 'Repo' },
+    { name: 'Terra Live', tag: 'VCS & CI' },
+    { name: 'WebLens', tag: 'Repo' },
+  ], // Git & GitHub
 };
 
 // Precision layout coordinates for 1000 x 560 viewBox

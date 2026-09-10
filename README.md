@@ -94,11 +94,12 @@ A keyboard-first Unix terminal environment built into the portfolio with custom 
 
 ### 6. Interactive Engineering Pillars & Case Study Suite
 - Architectural pillars highlighting verified engineering metrics:
-  - `<50ms WebSocket Latency` (FastAPI / WebSockets / Live Hazards) ➔ Linked to *Terra Live*.
-  - `60 FPS Locked / GPU Shaders` (Three.js / GLSL / Orbital Math) ➔ Linked to *Solaris*.
-  - `100% Strict TS / Zero-Jank` (TypeScript / Tailwind v4 / A11y) ➔ Linked to *WebLens*.
+  - `16K Body GPGPU Physics` (WebGL2 / Three.js / Ping-Pong FBOs / 3D Curl Noise) ➔ Linked to *Tesseract 3D*.
+  - `60 FPS Locked / GPU Shaders` (Three.js / GLSL / Keplerian Celestial Math) ➔ Linked to *Solaris*.
+  - `<50ms WebSocket Latency` (FastAPI / WebSockets / Live Hazards / SQLite) ➔ Linked to *Terra Live*.
+  - `Multimodal Screen Intelligence` (Chrome MV3 / Gemini Vision / Python) ➔ Linked to *WebLens*.
 - **Deep-Linking & Spec Sharing:**
-  - Direct URL hash deep linking (`/#terra-live`, `/#solaris`, `/#weblens`) automatically opens the project drawer with history sync.
+  - Direct URL hash deep linking (`/#tesseract-3d`, `/#solaris`, `/#terra-live`, `/#weblens`) automatically opens the project drawer with history sync.
   - "Share Specs" button copies direct links with HUD toast and audio confirmation.
 
 ### 7. Journey & Career Timeline Switcher

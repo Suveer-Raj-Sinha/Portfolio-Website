@@ -23,7 +23,7 @@ export function Contact() {
           {/* Left Column: Heading & Direct Actions */}
           <div>
             <Reveal>
-              <p className="mono-label text-accent text-xs mb-1">CONNECT // 09</p>
+              <p className="mono-label text-accent text-xs mb-1">CONNECT // 10</p>
               <h2 className="font-semibold tracking-tight text-[clamp(2rem,4.5vw,3.75rem)] leading-[1.05] mb-5">
                 Have something worth building? Let's talk.
               </h2>

@@ -33,9 +33,11 @@ export function About() {
               I build <span className="text-text font-medium">real-time web applications</span>,{' '}
               <span className="text-text font-medium">geospatial monitoring dashboards</span>, and{' '}
               <span className="text-text font-medium">interactive 3D experiences</span>. My work spans
-              aggregating live disaster feeds into Leaflet overlays, simulating planetary geology with{' '}
+              simulating 16K body particle physics with{' '}
+              <span className="text-accent font-mono text-xs">WebGL2 GPGPU computing</span>,
+              rendering celestial astrophysics with{' '}
               <span className="text-accent font-mono text-xs">custom GLSL shaders</span>, and engineering
-              AI-driven visual search extensions backed by{' '}
+              resilient platforms backed by{' '}
               <span className="text-accent font-mono text-xs">FastAPI & Python</span>.
             </p>
           </Reveal>

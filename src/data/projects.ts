@@ -45,86 +45,92 @@ export interface Project {
 export const projects: Project[] = [
   {
     index: '01',
-    name: 'Terra Live',
-    category: 'Real-Time Disaster Monitoring Platform',
+    name: 'Tesseract 3D',
+    category: 'GPGPU Particle Physics Laboratory & WebGL2 Engine',
     description:
-      'A high-performance, full-stack real-time disaster monitoring platform. Aggregates global hazard feeds — earthquakes, wildfires, volcanic activity, and tropical cyclones — into a unified, interactive map dashboard featuring a tectonic plate boundary overlay.',
-    tech: ['React', 'TypeScript', 'FastAPI', 'SQLite', 'React Leaflet'],
-    image: '/images/terra-live.png',
-    liveUrl: 'https://terra-live.vercel.app',
-    codeUrl: 'https://github.com/Suveer-Raj-Sinha/Terra-Live',
+      'A high-performance real-time 3D particle physics simulation and interactive cosmological playground. Simulates up to 16,384 physical bodies with Newtonian gravity, 3D divergence-free curl noise fluid turbulence, Gravitational Singularity Core (Black Hole / White Hole), and optical post-processing running at locked 60 FPS via WebGL2 GPGPU computing.',
+    tech: ['React', 'Three.js', 'WebGL2', 'GLSL', 'GPGPU', 'Web Audio API'],
+    image: '/images/tesseract-3d.png',
+    liveUrl: 'https://tesseract-3d.vercel.app',
+    codeUrl: 'https://github.com/Suveer-Raj-Sinha/Tesseract3d',
     statusBadge: {
-      text: 'LIVE DASHBOARD',
-      color: 'emerald',
+      text: 'GPGPU PHYSICS LAB',
+      color: 'cyan',
     },
     caseStudy: {
-      headline: 'Global Geohazard Telemetry & Plate Boundary Intelligence',
+      headline: 'Hardware-Accelerated GPGPU Particle Dynamics & Relativistic Singularity Physics',
       architectureOverview:
-        'Terra Live ingests asynchronous telemetry from USGS earthquakes and volcanoes, NASA FIRMS fire hotspots, and GDACS storm feeds. A FastAPI lifespan loop synchronizes and normalizes the feeds into indexed SQLite tables, while the React Leaflet frontend renders adaptive heatmaps, vector markers, analytics, and tectonic plate boundaries.',
+        'Tesseract 3D bypasses standard CPU-bound array iteration by mapping physical states directly into 32-bit floating-point textures (RGBA32F). Using a dual-pass Ping-Pong Framebuffer Object (FBO) pipeline, Semi-Implicit Euler integration runs entirely within GPU fragment shaders (velocityShader and positionShader). Instanced vertex shaders sample coordinates directly from VRAM, achieving 16,384 simulated bodies in a single draw call with zero CPU-to-GPU PCIe bus bottlenecks.',
       dataPipeline: [
-        'Cron lifespan loop synchronizes USGS, NASA FIRMS, USGS Volcanoes, and GDACS every 5 minutes',
-        'Async HTTPX ingestion normalizes heterogeneous feed payloads into a unified model',
-        'Indexed local SQLite cache protects upstream feeds and serves low-latency API queries',
-        'React Leaflet frontend renders adaptive heatmaps, SVG markers, and plate boundaries',
+        'Ping-Pong FBO pipeline integrates positions and velocities across dual RGBA32F render targets',
+        'Custom GLSL fragment shaders compute 3D divergence-free curl noise, mass inertia, and singularity forces',
+        'Instanced mesh vertex shader samples dynamic coordinates directly from texture buffers without CPU readbacks',
+        'Post-processing pipeline composites chromatic dispersion, emissive bloom glow, and peripheral vignetting',
+        'Procedural Web Audio engine synthesizes force field drones, UI feedback, and kinetic impulse detonation shockwaves',
       ],
       features: [
         {
-          name: 'Real-time hazard feeds',
+          name: '100% GPGPU Physics',
           description:
-            'Tracks earthquakes, wildfire hotspots, volcano advisories, and active tropical cyclones from authoritative global feeds.',
+            'Particle states (position, velocity, mass, energy) are computed entirely on the GPU inside 32-bit floating-point FBO textures.',
         },
         {
-          name: 'Adaptive map states',
+          name: 'Gravitational Singularity Core',
           description:
-            'Uses global heatmaps at low zoom and detailed vector hazard markers with tooltips at high zoom.',
+            'A central 3D celestial body functioning as an inward Black Hole (+M), outward Anti-Gravity White Hole (-M), or orbital Lissajous attractor.',
         },
         {
-          name: 'Analytics dashboard',
+          name: 'Divergence-Free 3D Curl Noise',
           description:
-            'Provides quick metrics, severity distributions, and earthquake magnitude cluster visualization.',
+            'Computes the mathematical curl of 3D Simplex vector potential fields, generating strictly volume-preserving incompressible fluid streamlines.',
         },
         {
-          name: 'Tectonic context',
+          name: 'Cinematic Camera Director',
           description:
-            'A toggleable PB2002 tectonic plate boundary overlay helps relate seismic and volcanic activity to plate structure.',
+            '5 automated and manual perspectives (Free Orbit, 360° Turntable, Swarm Fly-Through, Top-Down Planar, Side Elevation) with variable FOV.',
+        },
+        {
+          name: 'Thermodynamic Spectroscopy',
+          description:
+            'Chromatographic color ramps visualizing particle kinetic energy, velocity gradients, and gravitational stress in real time.',
         },
       ],
       metrics: [
-        { label: 'Sync Cycle', value: '5 min', detail: 'Automated background synchronization' },
-        { label: 'Data Sources', value: '4 Feeds', detail: 'USGS, NASA FIRMS, GDACS, NOAA/JTWC' },
-        { label: 'Render Mode', value: 'Canvas', detail: 'Leaflet Canvas path rendering' },
-        { label: 'Cache Layer', value: 'SQLite', detail: 'Indexed local response store' },
+        { label: 'Simulated Bodies', value: '16,384', detail: 'Real-time floating-point particles' },
+        { label: 'GPU Draw Calls', value: '1 Call', detail: 'Instanced vertex texture sampling' },
+        { label: 'Frame Rate', value: '60 FPS', detail: 'Hardware-accelerated GPGPU pipeline' },
+        { label: 'Audio Engine', value: 'Web Audio', detail: 'Procedurally synthesized drones & shockwaves' },
       ],
       challenges: [
         {
           problem:
-            'Heterogeneous GeoJSON schemas across international hazard agencies caused schema drift and frontend mapping crashes.',
+            'Simulating thousands of dynamic bodies in standard JavaScript arrays caused severe frame drops, garbage collection pauses, and main-thread lockups.',
           solution:
-            'Engineered a strict Pydantic parsing layer in FastAPI that validates, sanitizes, and normalizes disparate coordinates, timestamps, and magnitude scales into a unified GeoHazard schema.',
+            'Engineered a WebGL2 Ping-Pong FBO architecture where position and velocity integration executes concurrently in GPU fragment shaders, eliminating CPU-to-GPU data transmission during the simulation loop.',
           impact:
-            '100% resilient data parsing with zero client-side crashes from missing upstream fields.',
+            'Scaled particle capacity from a few hundred bodies on CPU to 16,384 bodies running at a locked 60 FPS.',
         },
         {
           problem:
-            'Rendering thousands of concurrent seismic markers and wildfire polygons severely degraded client DOM performance during zoom and pan operations.',
+            'Standard Perlin/Simplex noise fields caused particles to clump into artificial density spikes and leave unnatural voids.',
           solution:
-            'Implemented spatial grid bucketing and Supercluster algorithms with dynamic Level-of-Detail (LOD) marker pruning based on current zoom scale.',
+            'Implemented divergence-free 3D curl noise by calculating the spatial curl of a vector potential field via 6 central finite-difference evaluations in GLSL, guaranteeing zero divergence (∇ · u = 0).',
           impact:
-            'Canvas path rendering keeps map interaction responsive while hundreds of live hazards are drawn simultaneously.',
+            'Produces organic, turbulent fluid vortex rings and smoke-like streamlines that preserve volume without artificial clustering.',
         },
       ],
       techBreakdown: [
         {
-          category: 'Frontend & Mapping',
-          items: ['React 18', 'TypeScript', 'React Leaflet', 'Leaflet MarkerCluster', 'Tailwind CSS'],
+          category: 'WebGL2 & GPGPU Engine',
+          items: ['WebGL2', 'Three.js', 'React Three Fiber', 'GLSL Fragment Shaders', 'Ping-Pong FBOs', 'RGBA32F Floating Point Textures'],
         },
         {
-          category: 'Backend & Data',
-          items: ['Python 3.11', 'FastAPI', 'Uvicorn', 'SQLite', 'Pydantic v2', 'HTTPX Async'],
+          category: 'Physics & Simulation',
+          items: ['Semi-Implicit Euler Integration', '3D Divergence-Free Curl Noise', 'Newtonian Gravity', 'Variable Mass Dynamics', 'Lissajous Attractors'],
         },
         {
-          category: 'Geospatial & Feeds',
-          items: ['USGS Earthquake API', 'USGS Volcanoes API', 'NASA FIRMS', 'GDACS / NOAA / JTWC', 'PB2002 Plates'],
+          category: 'Post-Processing & Sound',
+          items: ['Optical Chromatic Dispersion', 'UnrealBloom Emissive Glow', 'HTML5 Web Audio API', 'Tailwind CSS', 'Vite'],
         },
       ],
     },
@@ -222,6 +228,92 @@ export const projects: Project[] = [
   },
   {
     index: '03',
+    name: 'Terra Live',
+    category: 'Real-Time Disaster Monitoring Platform',
+    description:
+      'A high-performance, full-stack real-time disaster monitoring platform. Aggregates global hazard feeds — earthquakes, wildfires, volcanic activity, and tropical cyclones — into a unified, interactive map dashboard featuring a tectonic plate boundary overlay.',
+    tech: ['React', 'TypeScript', 'FastAPI', 'SQLite', 'React Leaflet'],
+    image: '/images/terra-live.png',
+    liveUrl: 'https://terra-live.vercel.app',
+    codeUrl: 'https://github.com/Suveer-Raj-Sinha/Terra-Live',
+    statusBadge: {
+      text: 'LIVE DASHBOARD',
+      color: 'emerald',
+    },
+    caseStudy: {
+      headline: 'Global Geohazard Telemetry & Plate Boundary Intelligence',
+      architectureOverview:
+        'Terra Live ingests asynchronous telemetry from USGS earthquakes and volcanoes, NASA FIRMS fire hotspots, and GDACS storm feeds. A FastAPI lifespan loop synchronizes and normalizes the feeds into indexed SQLite tables, while the React Leaflet frontend renders adaptive heatmaps, vector markers, analytics, and tectonic plate boundaries.',
+      dataPipeline: [
+        'Cron lifespan loop synchronizes USGS, NASA FIRMS, USGS Volcanoes, and GDACS every 5 minutes',
+        'Async HTTPX ingestion normalizes heterogeneous feed payloads into a unified model',
+        'Indexed local SQLite cache protects upstream feeds and serves low-latency API queries',
+        'React Leaflet frontend renders adaptive heatmaps, SVG markers, and plate boundaries',
+      ],
+      features: [
+        {
+          name: 'Real-time hazard feeds',
+          description:
+            'Tracks earthquakes, wildfire hotspots, volcano advisories, and active tropical cyclones from authoritative global feeds.',
+        },
+        {
+          name: 'Adaptive map states',
+          description:
+            'Uses global heatmaps at low zoom and detailed vector hazard markers with tooltips at high zoom.',
+        },
+        {
+          name: 'Analytics dashboard',
+          description:
+            'Provides quick metrics, severity distributions, and earthquake magnitude cluster visualization.',
+        },
+        {
+          name: 'Tectonic context',
+          description:
+            'A toggleable PB2002 tectonic plate boundary overlay helps relate seismic and volcanic activity to plate structure.',
+        },
+      ],
+      metrics: [
+        { label: 'Sync Cycle', value: '5 min', detail: 'Automated background synchronization' },
+        { label: 'Data Sources', value: '4 Feeds', detail: 'USGS, NASA FIRMS, GDACS, NOAA/JTWC' },
+        { label: 'Render Mode', value: 'Canvas', detail: 'Leaflet Canvas path rendering' },
+        { label: 'Cache Layer', value: 'SQLite', detail: 'Indexed local response store' },
+      ],
+      challenges: [
+        {
+          problem:
+            'Heterogeneous GeoJSON schemas across international hazard agencies caused schema drift and frontend mapping crashes.',
+          solution:
+            'Engineered a strict Pydantic parsing layer in FastAPI that validates, sanitizes, and normalizes disparate coordinates, timestamps, and magnitude scales into a unified GeoHazard schema.',
+          impact:
+            '100% resilient data parsing with zero client-side crashes from missing upstream fields.',
+        },
+        {
+          problem:
+            'Rendering thousands of concurrent seismic markers and wildfire polygons severely degraded client DOM performance during zoom and pan operations.',
+          solution:
+            'Implemented spatial grid bucketing and Supercluster algorithms with dynamic Level-of-Detail (LOD) marker pruning based on current zoom scale.',
+          impact:
+            'Canvas path rendering keeps map interaction responsive while hundreds of live hazards are drawn simultaneously.',
+        },
+      ],
+      techBreakdown: [
+        {
+          category: 'Frontend & Mapping',
+          items: ['React 18', 'TypeScript', 'React Leaflet', 'Leaflet MarkerCluster', 'Tailwind CSS'],
+        },
+        {
+          category: 'Backend & Data',
+          items: ['Python 3.11', 'FastAPI', 'Uvicorn', 'SQLite', 'Pydantic v2', 'HTTPX Async'],
+        },
+        {
+          category: 'Geospatial & Feeds',
+          items: ['USGS Earthquake API', 'USGS Volcanoes API', 'NASA FIRMS', 'GDACS / NOAA / JTWC', 'PB2002 Plates'],
+        },
+      ],
+    },
+  },
+  {
+    index: '04',
     name: 'WebLens',
     category: 'AI-Powered Visual Search Extension',
     description:
