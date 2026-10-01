@@ -5,13 +5,14 @@ export const SLIDES = [
   { id: 'hero', label: 'Hero', num: '01' },
   { id: 'manifesto', label: 'Manifesto', num: '02' },
   { id: 'skills', label: 'Skills', num: '03' },
-  { id: 'project-0', label: 'Tesseract 3D', num: '04' },
-  { id: 'project-1', label: 'Solaris', num: '05' },
-  { id: 'project-2', label: 'Terra Live', num: '06' },
-  { id: 'project-3', label: 'WebLens', num: '07' },
-  { id: 'about', label: 'About', num: '08' },
-  { id: 'journey', label: 'Journey', num: '09' },
-  { id: 'contact', label: 'Contact', num: '10' },
+  { id: 'project-0', label: 'Solaris', num: '04' },
+  { id: 'project-1', label: 'Tera Live', num: '05' },
+  { id: 'project-2', label: 'ArcadeLab', num: '06' },
+  { id: 'project-3', label: 'Weblens', num: '07' },
+  { id: 'project-4', label: 'Tesseract 3D', num: '08' },
+  { id: 'about', label: 'About', num: '09' },
+  { id: 'journey', label: 'Journey', num: '10' },
+  { id: 'contact', label: 'Contact', num: '11' },
 ];
 
 export function SlideRail() {
