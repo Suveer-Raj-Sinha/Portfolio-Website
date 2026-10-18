@@ -43,100 +43,9 @@ export interface Project {
 }
 
 export const projects: Project[] = [
+  
   {
     index: '01',
-    name: 'Tesseract 3D',
-    category: 'GPGPU Particle Physics Laboratory & WebGL2 Engine',
-    description:
-      'A high-performance real-time 3D particle physics simulation and interactive cosmological playground. Simulates up to 16,384 physical bodies with Newtonian gravity, 3D divergence-free curl noise fluid turbulence, Gravitational Singularity Core (Black Hole / White Hole), and optical post-processing running at locked 60 FPS via WebGL2 GPGPU computing.',
-    tech: ['React', 'Three.js', 'WebGL2', 'GLSL', 'GPGPU', 'Web Audio API'],
-    image: '/images/tesseract-3d.png',
-    liveUrl: 'https://tesseract-3d.vercel.app',
-    codeUrl: 'https://github.com/Suveer-Raj-Sinha/Tesseract3d',
-    statusBadge: {
-      text: 'GPGPU PHYSICS LAB',
-      color: 'cyan',
-    },
-    caseStudy: {
-      headline: 'Hardware-Accelerated GPGPU Particle Dynamics & Relativistic Singularity Physics',
-      architectureOverview:
-        'Tesseract 3D bypasses standard CPU-bound array iteration by mapping physical states directly into 32-bit floating-point textures (RGBA32F). Using a dual-pass Ping-Pong Framebuffer Object (FBO) pipeline, Semi-Implicit Euler integration runs entirely within GPU fragment shaders (velocityShader and positionShader). Instanced vertex shaders sample coordinates directly from VRAM, achieving 16,384 simulated bodies in a single draw call with zero CPU-to-GPU PCIe bus bottlenecks.',
-      dataPipeline: [
-        'Ping-Pong FBO pipeline integrates positions and velocities across dual RGBA32F render targets',
-        'Custom GLSL fragment shaders compute 3D divergence-free curl noise, mass inertia, and singularity forces',
-        'Instanced mesh vertex shader samples dynamic coordinates directly from texture buffers without CPU readbacks',
-        'Post-processing pipeline composites chromatic dispersion, emissive bloom glow, and peripheral vignetting',
-        'Procedural Web Audio engine synthesizes force field drones, UI feedback, and kinetic impulse detonation shockwaves',
-      ],
-      features: [
-        {
-          name: '100% GPGPU Physics',
-          description:
-            'Particle states (position, velocity, mass, energy) are computed entirely on the GPU inside 32-bit floating-point FBO textures.',
-        },
-        {
-          name: 'Gravitational Singularity Core',
-          description:
-            'A central 3D celestial body functioning as an inward Black Hole (+M), outward Anti-Gravity White Hole (-M), or orbital Lissajous attractor.',
-        },
-        {
-          name: 'Divergence-Free 3D Curl Noise',
-          description:
-            'Computes the mathematical curl of 3D Simplex vector potential fields, generating strictly volume-preserving incompressible fluid streamlines.',
-        },
-        {
-          name: 'Cinematic Camera Director',
-          description:
-            '5 automated and manual perspectives (Free Orbit, 360° Turntable, Swarm Fly-Through, Top-Down Planar, Side Elevation) with variable FOV.',
-        },
-        {
-          name: 'Thermodynamic Spectroscopy',
-          description:
-            'Chromatographic color ramps visualizing particle kinetic energy, velocity gradients, and gravitational stress in real time.',
-        },
-      ],
-      metrics: [
-        { label: 'Simulated Bodies', value: '16,384', detail: 'Real-time floating-point particles' },
-        { label: 'GPU Draw Calls', value: '1 Call', detail: 'Instanced vertex texture sampling' },
-        { label: 'Frame Rate', value: '60 FPS', detail: 'Hardware-accelerated GPGPU pipeline' },
-        { label: 'Audio Engine', value: 'Web Audio', detail: 'Procedurally synthesized drones & shockwaves' },
-      ],
-      challenges: [
-        {
-          problem:
-            'Simulating thousands of dynamic bodies in standard JavaScript arrays caused severe frame drops, garbage collection pauses, and main-thread lockups.',
-          solution:
-            'Engineered a WebGL2 Ping-Pong FBO architecture where position and velocity integration executes concurrently in GPU fragment shaders, eliminating CPU-to-GPU data transmission during the simulation loop.',
-          impact:
-            'Scaled particle capacity from a few hundred bodies on CPU to 16,384 bodies running at a locked 60 FPS.',
-        },
-        {
-          problem:
-            'Standard Perlin/Simplex noise fields caused particles to clump into artificial density spikes and leave unnatural voids.',
-          solution:
-            'Implemented divergence-free 3D curl noise by calculating the spatial curl of a vector potential field via 6 central finite-difference evaluations in GLSL, guaranteeing zero divergence (∇ · u = 0).',
-          impact:
-            'Produces organic, turbulent fluid vortex rings and smoke-like streamlines that preserve volume without artificial clustering.',
-        },
-      ],
-      techBreakdown: [
-        {
-          category: 'WebGL2 & GPGPU Engine',
-          items: ['WebGL2', 'Three.js', 'React Three Fiber', 'GLSL Fragment Shaders', 'Ping-Pong FBOs', 'RGBA32F Floating Point Textures'],
-        },
-        {
-          category: 'Physics & Simulation',
-          items: ['Semi-Implicit Euler Integration', '3D Divergence-Free Curl Noise', 'Newtonian Gravity', 'Variable Mass Dynamics', 'Lissajous Attractors'],
-        },
-        {
-          category: 'Post-Processing & Sound',
-          items: ['Optical Chromatic Dispersion', 'UnrealBloom Emissive Glow', 'HTML5 Web Audio API', 'Tailwind CSS', 'Vite'],
-        },
-      ],
-    },
-  },
-  {
-    index: '02',
     name: 'Solaris',
     category: '3D Interactive Solar System Explorer',
     description:
@@ -227,7 +136,7 @@ export const projects: Project[] = [
     },
   },
   {
-    index: '03',
+    index: '02',
     name: 'Terra Live',
     category: 'Real-Time Disaster Monitoring Platform',
     description:
@@ -308,6 +217,138 @@ export const projects: Project[] = [
         {
           category: 'Geospatial & Feeds',
           items: ['USGS Earthquake API', 'USGS Volcanoes API', 'NASA FIRMS', 'GDACS / NOAA / JTWC', 'PB2002 Plates'],
+        },
+      ],
+    },
+  },
+  
+  {
+    index: '03',
+    name: 'ArcadeLab',
+    category: 'Interactive Gaming Platform',
+    description:
+      'A premium, ever-evolving digital arcade built with React, TypeScript, Vite, CSS, and HTML5 Canvas. Featuring 20 playable retro-inspired games across puzzles, shooters, platformers, and arcade classics, ArcadeLab combines a custom game loop, procedural audio, unified high scores, CRT effects, and a polished neon-cyberpunk interface. Designed as a continuously expanding platform, with new games and features added over time.',
+    tech: ['React', 'TypeScript', 'Vite', 'CSS', 'HTML5 Canvas', 'Web Audio API'],
+    image: '/images/arcadelab.png',
+    liveUrl: 'https://arcadelab.vercel.app',
+    codeUrl: 'https://github.com/Suveer-Raj-Sinha/ArcadeLab',
+    statusBadge: {
+      text: 'EVER-EVOLVING ARCADE',
+      color: 'emerald',
+    },
+    caseStudy: {
+      headline:
+        'A Modular Retro Arcade with Custom Game Loops, Procedural Audio, and Persistent High Scores',
+      architectureOverview:
+        'ArcadeLab is a React and TypeScript gaming platform powered by HTML5 Canvas and Vite. A custom useGameLoop hook separates game rendering from the React state cycle. Procedural audio is generated through the Web Audio API, while local storage preserves high scores, win streaks, and games-played statistics. The interface combines a neon-cyberpunk visual identity with optional CRT effects and interactive UI transitions. The platform is intentionally designed to evolve as new games and features are added.',
+      dataPipeline: [
+        'React and TypeScript provide the application interface and game integration',
+        'A custom useGameLoop hook separates rendering from the React state cycle',
+        'HTML5 Canvas renders the individual games',
+        'Web Audio API generates procedural sound without external audio files',
+        'Local storage preserves high scores, win streaks, and games-played statistics',
+        'Shared interface components provide CRT effects, transitions, and arcade navigation',
+      ],
+      features: [
+        {
+          name: '20 Playable Games',
+          description:
+            'A growing collection of retro-inspired games spanning puzzles, shooters, platformers, and arcade classics.',
+        },
+        {
+          name: 'Custom Game Loop',
+          description:
+            'A reusable useGameLoop hook separates game rendering from React state updates, designed for smooth gameplay.',
+        },
+        {
+          name: 'Procedural Audio',
+          description:
+            'Dynamically generates game audio through the Web Audio API without relying on external sound files.',
+        },
+        {
+          name: 'CRT Display Mode',
+          description:
+            'Toggleable retro scanlines, vignette, and screen-curvature effects recreate a classic arcade display.',
+        },
+        {
+          name: 'Persistent Statistics',
+          description:
+            'Local storage saves high scores, win streaks, and games-played statistics between visits.',
+        },
+        {
+          name: 'Premium UI Interactions',
+          description:
+            'Magnetic buttons, custom trailing cursors, page transitions, and smooth scroll locking create a cohesive arcade experience.',
+        },
+        {
+          name: 'Continuous Expansion',
+          description:
+            'The arcade is an ongoing project designed to accommodate additional games and features over time.',
+        },
+      ],
+      metrics: [
+        {
+          label: 'Playable Games',
+          value: '20',
+          detail: 'Retro-inspired games across multiple genres',
+        },
+        {
+          label: 'Rendering',
+          value: 'Canvas',
+          detail: 'HTML5 Canvas with a custom game-loop hook',
+        },
+        {
+          label: 'Audio',
+          value: 'Procedural',
+          detail: 'Sound generated through the Web Audio API',
+        },
+        {
+          label: 'Persistence',
+          value: 'Local Storage',
+          detail: 'High scores, win streaks, and play statistics',
+        },
+      ],
+      challenges: [
+        {
+          problem:
+            'Running continuous game rendering through the React state cycle can introduce unnecessary rendering overhead.',
+          solution:
+            'Built a custom useGameLoop hook that separates game rendering from the React state cycle.',
+          impact:
+            'Provides a dedicated rendering loop designed to support smooth, responsive gameplay.',
+        },
+        {
+          problem:
+            'Maintaining a consistent arcade experience across a growing collection of games requires shared interface conventions and persistent player records.',
+          solution:
+            'Combined a unified arcade interface with local persistence for high scores, win streaks, and games-played statistics.',
+          impact:
+            'Provides a consistent experience across the game collection while retaining player statistics between visits.',
+        },
+      ],
+      techBreakdown: [
+        {
+          category: 'Frontend & Application',
+          items: ['React', 'TypeScript', 'Vite', 'CSS'],
+        },
+        {
+          category: 'Game Rendering',
+          items: ['HTML5 Canvas', 'Custom useGameLoop Hook'],
+        },
+        {
+          category: 'Audio & Persistence',
+          items: ['Web Audio API', 'Browser Local Storage'],
+        },
+        {
+          category: 'Interaction & Visual Effects',
+          items: [
+            'CRT Scanlines',
+            'Vignette Effects',
+            'Screen Curvature',
+            'Magnetic Buttons',
+            'Custom Cursor Effects',
+            'Page Transitions',
+          ],
         },
       ],
     },
@@ -393,6 +434,99 @@ export const projects: Project[] = [
         {
           category: 'Backend & AI',
           items: ['Python 3.11', 'FastAPI', 'Google Gemini 2.5 Flash', 'Google Custom Search API', 'Pillow (PIL)'],
+        },
+      ],
+    },
+  },
+
+  {
+    index: '05',
+    name: 'Tesseract 3D',
+    category: 'GPGPU Particle Physics Laboratory & WebGL2 Engine',
+    description:
+      'A high-performance real-time 3D particle physics simulation and interactive cosmological playground. Simulates up to 16,384 physical bodies with Newtonian gravity, 3D divergence-free curl noise fluid turbulence, Gravitational Singularity Core (Black Hole / White Hole), and optical post-processing running at locked 60 FPS via WebGL2 GPGPU computing.',
+    tech: ['React', 'Three.js', 'WebGL2', 'GLSL', 'GPGPU', 'Web Audio API'],
+    image: '/images/tesseract-3d.png',
+    liveUrl: 'https://tesseract-3d.vercel.app',
+    codeUrl: 'https://github.com/Suveer-Raj-Sinha/Tesseract3d',
+    statusBadge: {
+      text: 'GPGPU PHYSICS LAB',
+      color: 'cyan',
+    },
+    caseStudy: {
+      headline: 'Hardware-Accelerated GPGPU Particle Dynamics & Relativistic Singularity Physics',
+      architectureOverview:
+        'Tesseract 3D bypasses standard CPU-bound array iteration by mapping physical states directly into 32-bit floating-point textures (RGBA32F). Using a dual-pass Ping-Pong Framebuffer Object (FBO) pipeline, Semi-Implicit Euler integration runs entirely within GPU fragment shaders (velocityShader and positionShader). Instanced vertex shaders sample coordinates directly from VRAM, achieving 16,384 simulated bodies in a single draw call with zero CPU-to-GPU PCIe bus bottlenecks.',
+      dataPipeline: [
+        'Ping-Pong FBO pipeline integrates positions and velocities across dual RGBA32F render targets',
+        'Custom GLSL fragment shaders compute 3D divergence-free curl noise, mass inertia, and singularity forces',
+        'Instanced mesh vertex shader samples dynamic coordinates directly from texture buffers without CPU readbacks',
+        'Post-processing pipeline composites chromatic dispersion, emissive bloom glow, and peripheral vignetting',
+        'Procedural Web Audio engine synthesizes force field drones, UI feedback, and kinetic impulse detonation shockwaves',
+      ],
+      features: [
+        {
+          name: '100% GPGPU Physics',
+          description:
+            'Particle states (position, velocity, mass, energy) are computed entirely on the GPU inside 32-bit floating-point FBO textures.',
+        },
+        {
+          name: 'Gravitational Singularity Core',
+          description:
+            'A central 3D celestial body functioning as an inward Black Hole (+M), outward Anti-Gravity White Hole (-M), or orbital Lissajous attractor.',
+        },
+        {
+          name: 'Divergence-Free 3D Curl Noise',
+          description:
+            'Computes the mathematical curl of 3D Simplex vector potential fields, generating strictly volume-preserving incompressible fluid streamlines.',
+        },
+        {
+          name: 'Cinematic Camera Director',
+          description:
+            '5 automated and manual perspectives (Free Orbit, 360° Turntable, Swarm Fly-Through, Top-Down Planar, Side Elevation) with variable FOV.',
+        },
+        {
+          name: 'Thermodynamic Spectroscopy',
+          description:
+            'Chromatographic color ramps visualizing particle kinetic energy, velocity gradients, and gravitational stress in real time.',
+        },
+      ],
+      metrics: [
+        { label: 'Simulated Bodies', value: '16,384', detail: 'Real-time floating-point particles' },
+        { label: 'GPU Draw Calls', value: '1 Call', detail: 'Instanced vertex texture sampling' },
+        { label: 'Frame Rate', value: '60 FPS', detail: 'Hardware-accelerated GPGPU pipeline' },
+        { label: 'Audio Engine', value: 'Web Audio', detail: 'Procedurally synthesized drones & shockwaves' },
+      ],
+      challenges: [
+        {
+          problem:
+            'Simulating thousands of dynamic bodies in standard JavaScript arrays caused severe frame drops, garbage collection pauses, and main-thread lockups.',
+          solution:
+            'Engineered a WebGL2 Ping-Pong FBO architecture where position and velocity integration executes concurrently in GPU fragment shaders, eliminating CPU-to-GPU data transmission during the simulation loop.',
+          impact:
+            'Scaled particle capacity from a few hundred bodies on CPU to 16,384 bodies running at a locked 60 FPS.',
+        },
+        {
+          problem:
+            'Standard Perlin/Simplex noise fields caused particles to clump into artificial density spikes and leave unnatural voids.',
+          solution:
+            'Implemented divergence-free 3D curl noise by calculating the spatial curl of a vector potential field via 6 central finite-difference evaluations in GLSL, guaranteeing zero divergence (∇ · u = 0).',
+          impact:
+            'Produces organic, turbulent fluid vortex rings and smoke-like streamlines that preserve volume without artificial clustering.',
+        },
+      ],
+      techBreakdown: [
+        {
+          category: 'WebGL2 & GPGPU Engine',
+          items: ['WebGL2', 'Three.js', 'React Three Fiber', 'GLSL Fragment Shaders', 'Ping-Pong FBOs', 'RGBA32F Floating Point Textures'],
+        },
+        {
+          category: 'Physics & Simulation',
+          items: ['Semi-Implicit Euler Integration', '3D Divergence-Free Curl Noise', 'Newtonian Gravity', 'Variable Mass Dynamics', 'Lissajous Attractors'],
+        },
+        {
+          category: 'Post-Processing & Sound',
+          items: ['Optical Chromatic Dispersion', 'UnrealBloom Emissive Glow', 'HTML5 Web Audio API', 'Tailwind CSS', 'Vite'],
         },
       ],
     },
