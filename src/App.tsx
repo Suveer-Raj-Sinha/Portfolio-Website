@@ -1,4 +1,5 @@
 import { useEffect } from 'react';
+import { useRoute } from './hooks/useRoute';
 import { Nav } from './components/Nav';
 import { MeridianSpine } from './components/MeridianSpine';
 import { SlideRail } from './components/SlideRail';
@@ -10,6 +11,7 @@ import { Projects } from './sections/Projects';
 import { About } from './sections/About';
 import { Journey } from './sections/Journey';
 import { Contact } from './sections/Contact';
+import { ProjectsPage } from './pages/ProjectsPage';
 import { useDeviceCapability } from './hooks/useDeviceCapability';
 import { useTouchSwipe } from './hooks/useTouchSwipe';
 import { CommandPalette } from './components/CommandPalette';
@@ -18,11 +20,22 @@ import { Toast } from './components/Toast';
 
 function App() {
   const { prefersReducedMotion } = useDeviceCapability();
-  useTouchSwipe();
+  const { isProjectsArchive, navigate } = useRoute();
+  useTouchSwipe(!isProjectsArchive);
 
   useEffect(() => {
     document.documentElement.classList.toggle('reduce-motion', prefersReducedMotion);
   }, [prefersReducedMotion]);
+
+  // Toggle smooth scrolling & remove scroll snap on /projects archive
+  useEffect(() => {
+    document.documentElement.classList.toggle('no-snap', isProjectsArchive);
+    document.body.classList.toggle('no-snap', isProjectsArchive);
+    return () => {
+      document.documentElement.classList.remove('no-snap');
+      document.body.classList.remove('no-snap');
+    };
+  }, [isProjectsArchive]);
 
   return (
     <>
@@ -36,18 +49,28 @@ function App() {
       >
         Skip to content
       </a>
+
+      {/* Global Navigation Header is always available */}
       <Nav />
-      <MeridianSpine />
-      <SlideRail />
-      <main>
-        <Hero />
-        <Manifesto />
-        <Skills />
-        <Projects />
-        <About />
-        <Journey />
-        <Contact />
-      </main>
+
+      {isProjectsArchive ? (
+        <ProjectsPage onNavigateHome={() => navigate('/', { scrollId: 'projects' })} />
+      ) : (
+        <>
+          <MeridianSpine />
+          <SlideRail />
+          <main>
+            <Hero />
+            <Manifesto />
+            <Skills />
+            <Projects onNavigateProjects={() => navigate('/projects')} />
+            <About />
+            <Journey />
+            <Contact />
+          </main>
+        </>
+      )}
+
       <CommandPalette />
       <CyberTerminal />
       <Toast />

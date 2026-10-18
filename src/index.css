@@ -29,15 +29,32 @@
 html {
   background: var(--color-ink);
   scroll-behavior: auto;
+}
+
+html:not(.no-snap) {
   scroll-snap-type: y mandatory;
 }
 
-section,
+html.no-snap,
+html.no-snap body {
+  scroll-snap-type: none !important;
+  overflow-y: auto !important;
+  scroll-behavior: smooth !important;
+}
+
+html:not(.no-snap) main > section:not(#projects),
 .snap-slide {
   scroll-snap-align: center;
   scroll-snap-stop: always;
   min-height: 100vh;
   min-height: 100svh;
+}
+
+html.no-snap section,
+html.no-snap main,
+.no-snap section {
+  min-height: auto !important;
+  scroll-snap-align: none !important;
 }
 
 #projects {

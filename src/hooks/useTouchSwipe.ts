@@ -1,13 +1,14 @@
 import { useEffect, useRef } from 'react';
 import { SLIDES } from '../components/SlideRail';
 
-export function useTouchSwipe() {
+export function useTouchSwipe(enabled: boolean = true) {
   const touchStartY = useRef<number | null>(null);
   const touchStartX = useRef<number | null>(null);
   const touchStartTime = useRef<number>(0);
   const isLocked = useRef<boolean>(false);
 
   useEffect(() => {
+    if (!enabled) return;
     // Native phone scrolling is more predictable than jumping between full-screen slides.
     if (window.matchMedia('(max-width: 767px)').matches) return;
 
@@ -98,5 +99,5 @@ export function useTouchSwipe() {
       window.removeEventListener('touchstart', handleTouchStart);
       window.removeEventListener('touchend', handleTouchEnd);
     };
-  }, []);
+  }, [enabled]);
 }

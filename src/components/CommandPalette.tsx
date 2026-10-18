@@ -81,6 +81,17 @@ export function CommandPalette() {
       { id: 'nav-manifesto', title: 'Manifesto // Philosophy', category: 'Navigation', hint: 'Section 02', action: () => document.getElementById('manifesto')?.scrollIntoView({ behavior: 'smooth' }) },
       { id: 'nav-skills', title: 'Skills // Network Graph', category: 'Navigation', hint: 'Interactive diagram', action: () => document.getElementById('skills')?.scrollIntoView({ behavior: 'smooth' }) },
       { id: 'nav-projects', title: 'Projects // Selected Work', category: 'Navigation', hint: 'Featured builds', action: () => document.getElementById('projects')?.scrollIntoView({ behavior: 'smooth' }) },
+      {
+        id: 'nav-archive',
+        title: 'Projects Archive // Full Repository Directory',
+        category: 'Navigation',
+        hint: 'Browse & filter all 5 builds',
+        action: () => {
+          window.history.pushState(null, '', '/projects');
+          window.dispatchEvent(new CustomEvent('app:route-change'));
+          window.scrollTo({ top: 0, left: 0, behavior: 'instant' });
+        },
+      },
       { id: 'nav-about', title: 'About // Background & Philosophy', category: 'Navigation', hint: 'Core bio', action: () => document.getElementById('about')?.scrollIntoView({ behavior: 'smooth' }) },
       { id: 'nav-journey', title: 'Journey // Career & Timeline', category: 'Navigation', hint: 'Education & experience', action: () => document.getElementById('journey')?.scrollIntoView({ behavior: 'smooth' }) },
       { id: 'nav-contact', title: 'Contact // Transmission', category: 'Navigation', hint: 'Get in touch', action: () => document.getElementById('contact')?.scrollIntoView({ behavior: 'smooth' }) },

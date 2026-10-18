@@ -1,18 +1,19 @@
 import { useEffect, useState, useCallback, useRef } from 'react';
 import { playSlideSound } from '../utils/audio';
+import { featuredProjects } from '../data/projects';
 
 export const SLIDES = [
   { id: 'hero', label: 'Hero', num: '01' },
   { id: 'manifesto', label: 'Manifesto', num: '02' },
   { id: 'skills', label: 'Skills', num: '03' },
-  { id: 'project-0', label: 'Solaris', num: '04' },
-  { id: 'project-1', label: 'Tera Live', num: '05' },
-  { id: 'project-2', label: 'ArcadeLab', num: '06' },
-  { id: 'project-3', label: 'Weblens', num: '07' },
-  { id: 'project-4', label: 'Tesseract 3D', num: '08' },
-  { id: 'about', label: 'About', num: '09' },
-  { id: 'journey', label: 'Journey', num: '10' },
-  { id: 'contact', label: 'Contact', num: '11' },
+  ...featuredProjects.map((p, idx) => ({
+    id: `project-${idx}`,
+    label: p.name,
+    num: String(4 + idx).padStart(2, '0'),
+  })),
+  { id: 'about', label: 'About', num: String(4 + featuredProjects.length).padStart(2, '0') },
+  { id: 'journey', label: 'Journey', num: String(5 + featuredProjects.length).padStart(2, '0') },
+  { id: 'contact', label: 'Contact', num: String(6 + featuredProjects.length).padStart(2, '0') },
 ];
 
 export function SlideRail() {

@@ -3,12 +3,27 @@ import { Reveal } from '../components/Reveal';
 import { Magnetic } from '../components/Magnetic';
 import { ProjectCardPreview } from '../components/ProjectCardPreview';
 import { ProjectDrawer } from '../components/ProjectDrawer';
-import { projects, type Project } from '../data/projects';
+import { projects, featuredProjects, type Project } from '../data/projects';
 import { playSelectSound } from '../utils/audio';
 import { showToast } from '../hooks/useToast';
 
-export function Projects() {
+interface ProjectsProps {
+  onNavigateProjects?: () => void;
+}
+
+export function Projects({ onNavigateProjects }: ProjectsProps) {
   const [activeProject, setActiveProject] = useState<Project | null>(null);
+
+  const handleGoToArchive = (e: React.MouseEvent) => {
+    e.preventDefault();
+    if (onNavigateProjects) {
+      onNavigateProjects();
+    } else {
+      window.history.pushState(null, '', '/projects');
+      window.dispatchEvent(new CustomEvent('app:route-change'));
+      window.scrollTo({ top: 0, left: 0, behavior: 'instant' });
+    }
+  };
 
   // Listen for open-project-drawer events & Direct URL Hash Deep-Linking
   useEffect(() => {
@@ -25,6 +40,7 @@ export function Projects() {
         const nameClean = nameLower.replace(/[\s-_]+/g, '');
         const slug = nameLower.replace(/\s+/g, '-');
         return (
+          p.id === targetStr ||
           nameLower === targetStr ||
           nameClean === targetClean ||
           slug === targetStr ||
@@ -49,6 +65,7 @@ export function Projects() {
         const slug = p.name.toLowerCase().replace(/\s+/g, '-');
         const compact = p.name.toLowerCase().replace(/\s+/g, '');
         return (
+          hash === p.id ||
           hash === slug ||
           hash === compact ||
           hash === `project-${p.index.toLowerCase()}` ||
@@ -58,10 +75,12 @@ export function Projects() {
 
       if (found) {
         setActiveProject(found);
-        const idx = projects.indexOf(found);
-        setTimeout(() => {
-          document.getElementById(`project-${idx}`)?.scrollIntoView({ behavior: 'smooth', block: 'center' });
-        }, 150);
+        const idx = featuredProjects.indexOf(found);
+        if (idx !== -1) {
+          setTimeout(() => {
+            document.getElementById(`project-${idx}`)?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+          }, 150);
+        }
         showToast(`Deep-linked: ${found.name} specs`, 'accent');
       }
     };
@@ -83,7 +102,7 @@ export function Projects() {
     } else {
       const currentHash = window.location.hash.replace(/^#/, '');
       const isProjectHash = projects.some(
-        (p) => p.name.toLowerCase().replace(/\s+/g, '-') === currentHash,
+        (p) => p.name.toLowerCase().replace(/\s+/g, '-') === currentHash || p.id === currentHash,
       );
       if (isProjectHash) {
         history.replaceState(null, '', '#projects');
@@ -93,7 +112,7 @@ export function Projects() {
 
   return (
     <section id="projects" className="relative">
-      {projects.map((project, i) => (
+      {featuredProjects.map((project, i) => (
         <article
           key={project.name}
           id={`project-${i}`}
@@ -101,11 +120,22 @@ export function Projects() {
         >
           {i === 0 && (
             <Reveal>
-              <div className="mb-6 lg:mb-8">
-                <p className="mono-label text-accent mb-1">PORTFOLIO</p>
-                <h2 className="font-semibold tracking-tight text-[clamp(1.75rem,3.5vw,2.5rem)]">
-                  Selected work
-                </h2>
+              <div className="mb-6 lg:mb-8 flex flex-col sm:flex-row sm:items-end justify-between gap-4">
+                <div>
+                  <p className="mono-label text-accent mb-1">PORTFOLIO // FEATURED WORK</p>
+                  <h2 className="font-semibold tracking-tight text-[clamp(1.75rem,3.5vw,2.5rem)]">
+                    Selected work
+                  </h2>
+                </div>
+                <Magnetic
+                  as="a"
+                  href="/projects"
+                  onClick={handleGoToArchive}
+                  className="self-start sm:self-auto bg-panel-raised border border-accent/40 hover:border-accent text-accent px-4 py-2 rounded-full text-xs font-mono transition-all duration-300 inline-flex items-center gap-2 group shadow-sm hover:shadow-[0_0_15px_rgba(229,160,75,0.2)]"
+                >
+                  <span>Explore All Projects ({projects.length})</span>
+                  <span className="transition-transform group-hover:translate-x-1" aria-hidden="true">&rarr;</span>
+                </Magnetic>
               </div>
             </Reveal>
           )}
@@ -128,9 +158,9 @@ export function Projects() {
 
               <div className="w-full lg:w-1/2">
                 <div className="flex items-center justify-between mb-2">
-                  <p className="mono-label text-accent text-xs">{project.index}</p>
+                  <p className="mono-label text-accent text-xs">SPEC // {project.index}</p>
                   <span className="mono-label text-xs text-text-dim">
-                    0{i + 1} / 0{projects.length}
+                    0{i + 1} / 0{featuredProjects.length}
                   </span>
                 </div>
                 <h3 className="font-semibold text-xl lg:text-3xl mb-1">{project.name}</h3>
@@ -140,7 +170,7 @@ export function Projects() {
                 </p>
 
                 <div className="flex flex-wrap gap-1.5 mb-6">
-                  {project.tech.map((t) => (
+                  {(project.technologies || project.tech).map((t) => (
                     <span
                       key={t}
                       className="mono-label text-xs border border-line rounded-full px-2.5 py-0.5"
@@ -179,7 +209,38 @@ export function Projects() {
                   >
                     View code
                   </Magnetic>
+
+                  <Magnetic
+                    as="a"
+                    href="/projects"
+                    onClick={handleGoToArchive}
+                    className="border border-line hover:border-accent/60 text-text-muted hover:text-accent px-3.5 py-2 rounded-full text-xs transition-colors inline-flex items-center gap-1.5"
+                  >
+                    <span>All Projects ({projects.length})</span>
+                    <span aria-hidden="true">&rarr;</span>
+                  </Magnetic>
                 </div>
+
+                {i === featuredProjects.length - 1 && (
+                  <div className="mt-8 pt-5 border-t border-line/60 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 bg-panel/30 p-3.5 rounded-xl border border-line/70">
+                    <div>
+                      <p className="text-[11px] font-mono text-accent font-semibold tracking-wider">
+                        FULL REPOSITORY DIRECTORY
+                      </p>
+                      <p className="text-xs text-text-muted">
+                        Explore all {projects.length} projects with search, stack filters & case studies.
+                      </p>
+                    </div>
+                    <Magnetic
+                      as="a"
+                      href="/projects"
+                      onClick={handleGoToArchive}
+                      className="shrink-0 bg-accent text-ink font-semibold px-4 py-1.5 rounded-full text-xs hover:bg-accent-hover transition-all"
+                    >
+                      Browse Archive &rarr;
+                    </Magnetic>
+                  </div>
+                )}
               </div>
             </div>
           </Reveal>

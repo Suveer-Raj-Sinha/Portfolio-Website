@@ -315,15 +315,29 @@ export function CyberTerminal() {
                         setOpen(false);
                         triggerOpenProject(p.name);
                       }}
-                      className="text-text font-semibold hover:text-accent underline text-left"
+                      className="text-text font-semibold hover:text-accent underline text-left cursor-pointer"
                     >
                       {p.name}
                     </button>
                     <span className="text-text-dim">[{p.category}]</span>
                   </div>
-                  <p className="text-text-muted text-[11px]">{p.tech.join(' • ')}</p>
+                  <p className="text-text-muted text-[11px] mt-0.5">{(p.technologies || p.tech).join(' • ')}</p>
                 </div>
               ))}
+              <div className="pt-2 border-t border-line/40">
+                <button
+                  type="button"
+                  onClick={() => {
+                    setOpen(false);
+                    window.history.pushState(null, '', '/projects');
+                    window.dispatchEvent(new CustomEvent('app:route-change'));
+                    window.scrollTo({ top: 0, left: 0, behavior: 'instant' });
+                  }}
+                  className="text-accent hover:text-accent-hover underline font-mono text-xs flex items-center gap-1 cursor-pointer"
+                >
+                  <span>&rarr; Open complete search & filter archive (/projects)</span>
+                </button>
+              </div>
             </div>
           ),
         });

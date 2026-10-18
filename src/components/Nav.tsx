@@ -116,6 +116,15 @@ export function Nav() {
   const handleLinkClick = (e: React.MouseEvent, id: string) => {
     e.preventDefault();
     setOpen(false);
+    if (window.location.pathname.startsWith('/projects')) {
+      window.history.pushState(null, '', `/#${id}`);
+      window.dispatchEvent(new CustomEvent('app:route-change'));
+      const delay = prefersReducedMotion ? 50 : 350;
+      setTimeout(() => {
+        document.getElementById(id)?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }, delay);
+      return;
+    }
     // Wait for close animation before scrolling
     const delay = prefersReducedMotion ? 0 : 300;
     setTimeout(() => {
@@ -146,8 +155,16 @@ export function Nav() {
           <div className="pointer-events-auto flex items-center gap-4">
             <a
               href="#hero"
+              onClick={(e) => {
+                if (window.location.pathname.startsWith('/projects')) {
+                  e.preventDefault();
+                  window.history.pushState(null, '', '/');
+                  window.dispatchEvent(new CustomEvent('app:route-change'));
+                  window.scrollTo({ top: 0, left: 0, behavior: 'instant' });
+                }
+              }}
               onMouseEnter={playHoverSound}
-              className="font-semibold tracking-tight text-lg text-text hover:text-accent transition-colors shrink-0"
+              className="font-semibold tracking-tight text-lg text-text hover:text-accent transition-colors shrink-0 cursor-pointer"
             >
               {profile.name}
             </a>
@@ -306,6 +323,22 @@ export function Nav() {
               </span>
             </a>
           ))}
+          <a
+            href="/projects"
+            onClick={(e) => {
+              e.preventDefault();
+              setOpen(false);
+              window.history.pushState(null, '', '/projects');
+              window.dispatchEvent(new CustomEvent('app:route-change'));
+              window.scrollTo({ top: 0, left: 0, behavior: 'instant' });
+            }}
+            className="group flex items-baseline gap-5 py-3.5 border-b border-accent/40 bg-accent/5 hover:bg-accent/10 transition-colors focus-visible:outline-none"
+          >
+            <span className="mono-label text-accent shrink-0 w-7">08</span>
+            <span className="text-[clamp(1.5rem,7vw,2.25rem)] font-semibold tracking-tight leading-none text-accent">
+              All Projects ↗
+            </span>
+          </a>
         </nav>
 
         {/* Quick Tools & Resume in Mobile Menu */}
