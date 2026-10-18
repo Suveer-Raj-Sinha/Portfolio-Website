@@ -1,113 +1,19 @@
-import { useState } from 'react';
-import { skillGroups } from '../data/profile';
+import React, { useState, useRef, useEffect } from 'react';
+import {
+  TECH_BRANCHES,
+  CENTER_NODE,
+  ALL_TECHNOLOGIES,
+  VB_W,
+  VB_H,
+  type TechnologyItem,
+  type TechCategoryId,
+} from '../data/technologies';
 import { useDeviceCapability } from '../hooks/useDeviceCapability';
 import { triggerOpenProject } from '../utils/events';
 import { playHoverSound, playSelectSound } from '../utils/audio';
+import { TechIcon } from './TechIcons';
 
-// Skill to Project Cross-Referencing Map
-const SKILL_PROJECT_MAP: Record<string, { name: string; tag: string }[]> = {
-  'fe-0': [{ name: 'Tesseract 3D', tag: 'R3F Canvas' }, { name: 'Terra Live', tag: 'Dashboard' }], // React
-  'fe-1': [
-    { name: 'Tesseract 3D', tag: 'GPGPU Engine' },
-    { name: 'Terra Live', tag: 'Full-Stack' },
-    { name: 'Solaris', tag: '3D Simulation' },
-    { name: 'WebLens', tag: 'AI Vision' },
-  ], // TypeScript
-  'fe-2': [
-    { name: 'Tesseract 3D', tag: 'GPGPU Particle FBO' },
-    { name: 'Solaris', tag: 'InstancedMesh WebGL' },
-  ], // Three.js & R3F
-  'fe-3': [{ name: 'WebLens', tag: 'Chrome MV3' }], // JavaScript
-  'fe-4': [{ name: 'Terra Live', tag: 'HUD Layout' }], // Tailwind CSS
-  'be-1': [
-    { name: 'Terra Live', tag: 'FastAPI Stream' },
-    { name: 'WebLens', tag: 'Gemini Backend' },
-  ], // Python & FastAPI
-  'be-4': [{ name: 'Terra Live', tag: 'LRU Spatial Cache' }], // SQLite
-  'be-5': [{ name: 'Terra Live', tag: 'GeoJSON REST' }, { name: 'WebLens', tag: 'Vision API' }], // REST APIs
-  'mo-0': [{ name: 'WebLens', tag: 'Screen Intelligence' }], // Chrome Extension APIs
-  'mo-3': [
-    { name: 'Tesseract 3D', tag: 'Curl Noise Shaders' },
-    { name: 'Solaris', tag: 'Rayleigh Scattering' },
-  ], // GLSL Shaders
-  'mo-4': [
-    { name: 'Tesseract 3D', tag: 'Repo' },
-    { name: 'Solaris', tag: 'Repo' },
-    { name: 'Terra Live', tag: 'VCS & CI' },
-    { name: 'WebLens', tag: 'Repo' },
-  ], // Git & GitHub
-};
-
-// Precision layout coordinates for 1000 x 560 viewBox
-// Balanced 16:9 widescreen ratio that fits inside a single scroll-snap viewport
-const VB_W = 1000;
-const VB_H = 560;
-
-const CENTER_NODE = { x: 500, y: 275, label: 'CORE STACK' };
-
-interface SubNode {
-  id: string;
-  label: string;
-  x: number;
-  y: number;
-}
-
-interface GroupConfig {
-  id: string;
-  label: string;
-  shortLabel: string;
-  x: number;
-  y: number;
-  subs: SubNode[];
-}
-
-const GRAPH_LAYOUT: GroupConfig[] = [
-  {
-    id: 'frontend',
-    label: 'Frontend Development',
-    shortLabel: 'Frontend',
-    x: 500,
-    y: 145,
-    subs: [
-      { id: 'fe-0', label: 'React.js', x: 170, y: 80 },
-      { id: 'fe-1', label: 'TypeScript', x: 330, y: 48 },
-      { id: 'fe-2', label: 'Three.js & R3F', x: 500, y: 38 },
-      { id: 'fe-3', label: 'JavaScript (ES6+)', x: 670, y: 48 },
-      { id: 'fe-4', label: 'Tailwind CSS', x: 830, y: 80 },
-    ],
-  },
-  {
-    id: 'backend',
-    label: 'Backend & Data',
-    shortLabel: 'Backend & Data',
-    x: 270,
-    y: 350,
-    subs: [
-      { id: 'be-0', label: 'Node.js & Express.js', x: 110, y: 255 },
-      { id: 'be-1', label: 'Python & FastAPI', x: 80, y: 335 },
-      { id: 'be-2', label: 'MongoDB', x: 95, y: 415 },
-      { id: 'be-3', label: 'Firebase & Firestore', x: 155, y: 490 },
-      { id: 'be-4', label: 'SQLite', x: 275, y: 525 },
-      { id: 'be-5', label: 'REST APIs', x: 395, y: 475 },
-    ],
-  },
-  {
-    id: 'mobile',
-    label: 'Mobile & Additional',
-    shortLabel: 'Mobile & Tools',
-    x: 730,
-    y: 350,
-    subs: [
-      { id: 'mo-0', label: 'Chrome Extension APIs', x: 890, y: 255 },
-      { id: 'mo-1', label: 'Flutter & Dart', x: 920, y: 335 },
-      { id: 'mo-2', label: 'Kotlin & Java', x: 905, y: 415 },
-      { id: 'mo-3', label: 'GLSL Shaders', x: 845, y: 490 },
-      { id: 'mo-4', label: 'Git & GitHub', x: 725, y: 525 },
-    ],
-  },
-];
-
-// Helper to generate paths — uses straight L for vertical alignments to ensure perfect dashing
+// Helper to generate smooth cubic bezier paths for SVG wiring
 function getPath(x1: number, y1: number, x2: number, y2: number) {
   if (Math.abs(x1 - x2) < 0.1) {
     return `M ${x1} ${y1} L ${x2} ${y2}`;
@@ -118,40 +24,185 @@ function getPath(x1: number, y1: number, x2: number, y2: number) {
 
 export function SkillGraph() {
   const { ready } = useDeviceCapability();
-  // Off by default: pulse effect only activates on hover / interaction
-  const [activeGroup, setActiveGroup] = useState<string | null>(null);
-  const [hoveredSub, setHoveredSub] = useState<string | null>(null);
+  const [activeGroup, setActiveGroup] = useState<TechCategoryId | null>(null);
+  const [hoveredTech, setHoveredTech] = useState<TechnologyItem | null>(null);
+  const [pinnedTech, setPinnedTech] = useState<TechnologyItem | null>(null);
+  const [mobileSelectedTech, setMobileSelectedTech] = useState<TechnologyItem | null>(null);
+  const [mobileExpandedBranch, setMobileExpandedBranch] = useState<TechCategoryId | null>(null);
+
+  // Active technology displayed in contextual popover
+  const activeTech = hoveredTech || pinnedTech;
+
+  const leaveTimeoutRef = useRef<number | null>(null);
+
+  const clearLeaveTimeout = () => {
+    if (leaveTimeoutRef.current !== null) {
+      window.clearTimeout(leaveTimeoutRef.current);
+      leaveTimeoutRef.current = null;
+    }
+  };
+
+  const handleNodeMouseEnter = (tech: TechnologyItem, branchId: TechCategoryId) => {
+    clearLeaveTimeout();
+    setHoveredTech(tech);
+    setActiveGroup(branchId);
+    playHoverSound();
+  };
+
+  const handleNodeMouseLeave = () => {
+    clearLeaveTimeout();
+    leaveTimeoutRef.current = window.setTimeout(() => {
+      setHoveredTech(null);
+    }, 260);
+  };
+
+  const handleCardMouseEnter = () => {
+    clearLeaveTimeout();
+  };
+
+  const handleCardMouseLeave = () => {
+    clearLeaveTimeout();
+    leaveTimeoutRef.current = window.setTimeout(() => {
+      setHoveredTech(null);
+    }, 200);
+  };
+
+  useEffect(() => {
+    return () => clearLeaveTimeout();
+  }, []);
 
   if (!ready) return null;
 
+  // Intelligently compute popover position in empty space (on top or to the side)
+  const getSmartPopoverStyle = (tech: TechnologyItem): React.CSSProperties => {
+    // 1. Bottom sector nodes -> Appear ON TOP in the empty space above
+    if (tech.y >= 460) {
+      const bottomPercent = ((VB_H - tech.y + 22) / VB_H) * 100;
+      const leftPercent = Math.min(Math.max((tech.x / VB_W) * 100, 15), 85);
+      return {
+        bottom: `${bottomPercent}%`,
+        left: `${leftPercent}%`,
+        transform: 'translateX(-50%)',
+      };
+    }
+
+    // 2. Top sector nodes -> Appear ON BOTTOM in the empty space below
+    if (tech.y <= 160) {
+      const topPercent = ((tech.y + 24) / VB_H) * 100;
+      const leftPercent = Math.min(Math.max((tech.x / VB_W) * 100, 15), 85);
+      return {
+        top: `${topPercent}%`,
+        left: `${leftPercent}%`,
+        transform: 'translateX(-50%)',
+      };
+    }
+
+    // 3. Far-left nodes -> Appear to the RIGHT in the empty space toward the center
+    if (tech.x <= 280) {
+      const leftPercent = ((tech.x + 36) / VB_W) * 100;
+      const topPercent = Math.min(Math.max(((tech.y - 35) / VB_H) * 100, 6), 70);
+      return {
+        left: `${leftPercent}%`,
+        top: `${topPercent}%`,
+      };
+    }
+
+    // 4. Far-right nodes -> Appear to the LEFT in the empty space toward the center
+    if (tech.x >= 920) {
+      const rightPercent = ((VB_W - tech.x + 36) / VB_W) * 100;
+      const topPercent = Math.min(Math.max(((tech.y - 35) / VB_H) * 100, 6), 70);
+      return {
+        right: `${rightPercent}%`,
+        top: `${topPercent}%`,
+      };
+    }
+
+    // 5. Mid-left inner nodes (CSS, Express, Firebase Storage) -> Appear to the top or right
+    if (tech.x < 600) {
+      const leftPercent = ((tech.x + 28) / VB_W) * 100;
+      const topPercent = Math.min(Math.max(((tech.y - 45) / VB_H) * 100, 6), 70);
+      return {
+        left: `${leftPercent}%`,
+        top: `${topPercent}%`,
+      };
+    }
+
+    // 6. Mid-right inner nodes (Rust, AI Dev Tools, VS Code, R) -> Appear to the left or top
+    const rightPercent = ((VB_W - tech.x + 28) / VB_W) * 100;
+    const topPercent = Math.min(Math.max(((tech.y - 45) / VB_H) * 100, 6), 70);
+    return {
+      right: `${rightPercent}%`,
+      top: `${topPercent}%`,
+    };
+  };
+
   return (
     <div className="w-full">
-      {/* DESKTOP VIEW: Clean, full-canvas interactive circuit / node constellation */}
-      <div 
-        className="hidden md:block relative w-full rounded-2xl border border-line bg-panel/30 backdrop-blur-sm p-3 overflow-hidden shadow-2xl"
+      {/* DESKTOP VIEW (>= lg): One Big Tree with Smart Popovers in Empty Space */}
+      <div
+        className="hidden lg:block relative w-full rounded-2xl border border-line bg-panel/30 backdrop-blur-sm p-4 overflow-hidden shadow-2xl"
         onMouseLeave={() => {
-          setActiveGroup(null);
-          setHoveredSub(null);
+          if (!pinnedTech) {
+            setActiveGroup(null);
+          }
+          handleNodeMouseLeave();
         }}
       >
-        {/* Ambient background grid pattern */}
-        <div 
-          className="absolute inset-0 opacity-[0.03] pointer-events-none"
+        {/* Ambient Technical Dot Grid */}
+        <div
+          className="absolute inset-0 opacity-[0.035] pointer-events-none"
           style={{
             backgroundImage: `radial-gradient(var(--color-accent) 1px, transparent 1px)`,
-            backgroundSize: '24px 24px'
+            backgroundSize: '24px 24px',
           }}
         />
 
-        <div className="relative w-full max-h-[58vh] aspect-[1000/560]">
-          {/* SVG layer for connection paths and glowing nodes */}
+        {/* Top CAD Bar */}
+        <div className="relative flex items-center justify-between pb-2 border-b border-line/60 font-mono text-xs select-none">
+          <div className="flex items-center gap-2.5">
+            <span className="w-2 h-2 rounded-full bg-accent animate-pulse shadow-[0_0_8px_var(--color-accent)]" />
+            <span className="text-text font-bold tracking-wider">
+              SYS_MAP // ONE COMPREHENSIVE TECHNOLOGY TREE
+            </span>
+            <span className="text-text-dim text-[11px] hidden sm:inline">
+              | 6 BRANCHES • {ALL_TECHNOLOGIES.length} NODES
+            </span>
+          </div>
+
+          <div className="flex items-center gap-3 text-[11px] text-text-dim">
+            <span>[ HOVER TO INSPECT • CLICK TO PIN ]</span>
+            {pinnedTech && (
+              <button
+                type="button"
+                onClick={() => {
+                  setPinnedTech(null);
+                  setActiveGroup(null);
+                }}
+                className="text-accent hover:underline cursor-pointer font-semibold"
+              >
+                UNPIN [✕]
+              </button>
+            )}
+          </div>
+        </div>
+
+        {/* Constellation Canvas: All 6 Branches Visible Simultaneously */}
+        <div className="relative w-full aspect-[1200/680] my-2 select-none">
+          {/* SVG layer: Wiring lines with preserveAspectRatio="none" to guarantee 100% alignment */}
           <svg
             viewBox={`0 0 ${VB_W} ${VB_H}`}
+            preserveAspectRatio="none"
             className="absolute inset-0 w-full h-full pointer-events-none"
           >
             <defs>
-              {/* filterUnits="userSpaceOnUse" prevents vertical/zero-width lines (e.g. Three.js) from being clipped */}
-              <filter id="branchGlow" filterUnits="userSpaceOnUse" x="0" y="0" width={VB_W} height={VB_H}>
+              <filter
+                id="branchGlow"
+                filterUnits="userSpaceOnUse"
+                x="0"
+                y="0"
+                width={VB_W}
+                height={VB_H}
+              >
                 <feGaussianBlur stdDeviation="2.5" result="blur" />
                 <feMerge>
                   <feMergeNode in="blur" />
@@ -186,31 +237,29 @@ export function SkillGraph() {
               `}</style>
             </defs>
 
-            {/* Core backbone lines connecting Center to 3 Main Hubs */}
-            {GRAPH_LAYOUT.map((g) => {
-              const isSelected = activeGroup === g.id;
+            {/* Backbone Lines: Center Core to the 6 Symmetrical Hubs */}
+            {TECH_BRANCHES.map((b) => {
+              const isSelected = activeGroup === b.id;
               const isDimmed = activeGroup !== null && !isSelected;
 
               return (
-                <g key={`core-path-${g.id}`}>
-                  {/* Base static path */}
+                <g key={`core-path-${b.id}`}>
                   <path
-                    d={getPath(CENTER_NODE.x, CENTER_NODE.y, g.x, g.y)}
+                    d={getPath(CENTER_NODE.x, CENTER_NODE.y, b.x, b.y)}
                     fill="none"
                     stroke={isSelected ? 'var(--color-accent)' : 'var(--color-line-strong)'}
-                    strokeWidth={isSelected ? 1.5 : 1}
+                    strokeWidth={isSelected ? 1.8 : 1}
                     strokeDasharray={isSelected ? 'none' : '4 4'}
                     className="transition-all duration-300"
-                    opacity={isSelected ? 0.9 : isDimmed ? 0.1 : 0.25}
+                    opacity={isSelected ? 0.95 : isDimmed ? 0.08 : 0.28}
                   />
 
-                  {/* Pulse effect directly on the branch from center to outer node */}
                   {isSelected && (
                     <path
-                      d={getPath(CENTER_NODE.x, CENTER_NODE.y, g.x, g.y)}
+                      d={getPath(CENTER_NODE.x, CENTER_NODE.y, b.x, b.y)}
                       fill="none"
                       stroke="var(--color-accent)"
-                      strokeWidth={2.5}
+                      strokeWidth={2.4}
                       strokeDasharray="8 12"
                       strokeLinecap="round"
                       filter="url(#branchGlow)"
@@ -221,48 +270,47 @@ export function SkillGraph() {
               );
             })}
 
-            {/* Sub-node connecting lines */}
-            {GRAPH_LAYOUT.map((g) => {
-              const isSelected = activeGroup === g.id;
-              const isDimmed = activeGroup !== null && !isSelected;
+            {/* Sub-node Connecting Lines: Hubs to Technology Nodes */}
+            {TECH_BRANCHES.map((b) => {
+              const isBranchSelected = activeGroup === b.id;
+              const isDimmed = activeGroup !== null && !isBranchSelected;
 
               return (
-                <g key={`sub-paths-${g.id}`}>
-                  {g.subs.map((sub) => {
-                    const isSubHovered = hoveredSub === sub.id;
+                <g key={`sub-paths-${b.id}`}>
+                  {b.technologies.map((tech) => {
+                    const isTechActive = activeTech?.id === tech.id;
+
                     return (
-                      <g key={`path-${sub.id}`}>
-                        {/* Base sub-path */}
+                      <g key={`path-${tech.id}`}>
                         <path
-                          d={getPath(g.x, g.y, sub.x, sub.y)}
+                          d={getPath(b.x, b.y, tech.x, tech.y)}
                           fill="none"
                           stroke={
-                            isSubHovered
+                            isTechActive
                               ? 'var(--color-accent)'
-                              : isSelected
+                              : isBranchSelected
                               ? 'var(--color-accent)'
                               : 'var(--color-line)'
                           }
-                          strokeWidth={isSubHovered ? 2.5 : isSelected ? 1.4 : 1}
+                          strokeWidth={isTechActive ? 2.4 : isBranchSelected ? 1.4 : 1}
                           className="transition-all duration-300"
                           opacity={
-                            isSubHovered
+                            isTechActive
                               ? 1
-                              : isSelected
+                              : isBranchSelected
                               ? 0.85
                               : isDimmed
-                              ? 0.08
-                              : 0.18
+                              ? 0.06
+                              : 0.2
                           }
                         />
 
-                        {/* Pulse effect directly on the sub-branch */}
-                        {isSelected && (
+                        {isBranchSelected && (
                           <path
-                            d={getPath(g.x, g.y, sub.x, sub.y)}
+                            d={getPath(b.x, b.y, tech.x, tech.y)}
                             fill="none"
                             stroke="var(--color-accent)"
-                            strokeWidth={isSubHovered ? 2.5 : 1.5}
+                            strokeWidth={isTechActive ? 2.5 : 1.4}
                             strokeDasharray="6 10"
                             strokeLinecap="round"
                             filter="url(#branchGlow)"
@@ -270,14 +318,13 @@ export function SkillGraph() {
                           />
                         )}
 
-                        {/* Terminal connector dot */}
                         <circle
-                          cx={sub.x}
-                          cy={sub.y}
-                          r={isSubHovered ? 3.5 : isSelected ? 2.5 : 1.5}
-                          fill={isSelected ? 'var(--color-accent)' : 'var(--color-line-strong)'}
+                          cx={tech.x}
+                          cy={tech.y}
+                          r={isTechActive ? 3.5 : isBranchSelected ? 2.5 : 1.5}
+                          fill={isBranchSelected ? 'var(--color-accent)' : 'var(--color-line-strong)'}
                           className="transition-all duration-300"
-                          opacity={isSelected ? 1 : isDimmed ? 0.15 : 0.3}
+                          opacity={isBranchSelected ? 1 : isDimmed ? 0.12 : 0.3}
                         />
                       </g>
                     );
@@ -287,182 +334,420 @@ export function SkillGraph() {
             })}
           </svg>
 
-          {/* Center Hub: System Core */}
+          {/* Central Core Stack Engine Node */}
           <div
-            className="absolute flex flex-col items-center justify-center w-28 h-28 rounded-full border border-accent/40 bg-ink/90 backdrop-blur-md shadow-2xl pointer-events-auto select-none"
+            className="absolute flex flex-col items-center justify-center w-26 h-26 rounded-full border border-accent/40 bg-ink/95 backdrop-blur-md shadow-2xl pointer-events-auto select-none transition-transform duration-300 hover:scale-105 z-25"
             style={{
               left: `${(CENTER_NODE.x / VB_W) * 100}%`,
               top: `${(CENTER_NODE.y / VB_H) * 100}%`,
               transform: 'translate(-50%, -50%)',
             }}
           >
-            <div className="w-2 h-2 rounded-full bg-accent mb-1 shadow-[0_0_10px_var(--color-accent)] animate-pulse" />
-            <span className="mono-label text-[10px] text-accent tracking-widest text-center px-1">
-              CORE STACK
+            <div className="relative flex items-center justify-center w-5 h-5 mb-0.5">
+              <div className="absolute inset-0 rounded-full border border-accent/40 animate-ping opacity-40" />
+              <div className="w-2.5 h-2.5 rounded-full bg-accent shadow-[0_0_12px_var(--color-accent)] animate-pulse" />
+            </div>
+            <span className="mono-label text-[10px] font-bold text-accent tracking-widest text-center px-1">
+              {CENTER_NODE.label}
             </span>
-            <span className="text-[10px] text-text-dim text-center">Engine</span>
+            <span className="text-[9px] text-text-dim text-center">
+              {CENTER_NODE.sublabel}
+            </span>
           </div>
 
-          {/* 3 Main Category Hubs (Clean button with no pulse) */}
-          {GRAPH_LAYOUT.map((g) => {
-            const isSelected = activeGroup === g.id;
+          {/* 6 Category Hub Nodes */}
+          {TECH_BRANCHES.map((b) => {
+            const isSelected = activeGroup === b.id;
             const isDimmed = activeGroup !== null && !isSelected;
 
             return (
               <button
-                key={`hub-${g.id}`}
+                key={`hub-${b.id}`}
                 type="button"
-                onClick={() => setActiveGroup(isSelected ? null : g.id)}
-                onMouseEnter={() => setActiveGroup(g.id)}
-                className={`absolute px-4 py-2 rounded-full border text-xs font-semibold tracking-wide transition-all duration-300 pointer-events-auto shadow-lg flex items-center gap-2 ${
+                onClick={() => {
+                  playSelectSound();
+                  setActiveGroup(isSelected ? null : b.id);
+                }}
+                onMouseEnter={() => {
+                  setActiveGroup(b.id);
+                  playHoverSound();
+                }}
+                className={`absolute px-3.5 py-1.5 rounded-full border text-xs font-semibold tracking-wide transition-all duration-300 pointer-events-auto shadow-lg flex items-center gap-2 select-none cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-accent ${
                   isSelected
-                    ? 'bg-accent text-ink border-accent scale-105 shadow-[0_0_18px_rgba(217,142,63,0.35)] z-30'
+                    ? 'bg-accent text-ink border-accent scale-105 shadow-[0_0_20px_rgba(217,142,63,0.4)] z-30'
                     : isDimmed
-                    ? 'bg-panel/60 border-line/60 text-text-muted z-10 opacity-40'
+                    ? 'bg-panel/60 border-line/60 text-text-muted z-10 opacity-35'
                     : 'bg-panel border-line text-text hover:border-accent hover:text-accent z-20'
                 }`}
                 style={{
-                  left: `${(g.x / VB_W) * 100}%`,
-                  top: `${(g.y / VB_H) * 100}%`,
+                  left: `${(b.x / VB_W) * 100}%`,
+                  top: `${(b.y / VB_H) * 100}%`,
                   transform: 'translate(-50%, -50%)',
                 }}
+                aria-label={`${b.label} branch category with ${b.technologies.length} technologies`}
               >
                 <span
                   className={`w-2 h-2 rounded-full transition-colors ${
-                    isSelected
-                      ? 'bg-ink'
-                      : 'bg-text-dim'
+                    isSelected ? 'bg-ink' : 'bg-accent shadow-[0_0_6px_var(--color-accent)]'
                   }`}
                 />
-                {g.label}
+                <span>{b.shortLabel}</span>
+                <span
+                  className={`text-[10px] font-mono px-1 rounded ${
+                    isSelected ? 'bg-ink/20 text-ink font-bold' : 'text-text-dim'
+                  }`}
+                >
+                  {String(b.technologies.length).padStart(2, '0')}
+                </span>
               </button>
             );
           })}
 
-          {/* Sub-node Badges */}
-          {GRAPH_LAYOUT.map((g) => {
-            const isSelected = activeGroup === g.id;
-            const isDimmed = activeGroup !== null && !isSelected;
+          {/* Technology Nodes: Permanently Visible Brand Logo + Name (Zero Overlaps) */}
+          {TECH_BRANCHES.map((b) => {
+            const isBranchActive = activeGroup === b.id;
+            const isDimmed = activeGroup !== null && !isBranchActive;
 
-            return g.subs.map((sub) => {
-              const isSubHovered = hoveredSub === sub.id;
-
-              const projectsLinked = SKILL_PROJECT_MAP[sub.id] || [];
+            return b.technologies.map((tech) => {
+              const isHovered = hoveredTech?.id === tech.id;
+              const isPinned = pinnedTech?.id === tech.id;
+              const isActive = isHovered || isPinned;
 
               return (
-                <div
-                  key={`sub-node-${sub.id}`}
-                  onMouseEnter={() => {
-                    setHoveredSub(sub.id);
-                    setActiveGroup(g.id);
-                    playHoverSound();
+                <button
+                  key={`tech-node-${tech.id}`}
+                  type="button"
+                  onMouseEnter={() => handleNodeMouseEnter(tech, b.id)}
+                  onMouseLeave={handleNodeMouseLeave}
+                  onFocus={() => handleNodeMouseEnter(tech, b.id)}
+                  onBlur={handleNodeMouseLeave}
+                  onClick={() => {
+                    playSelectSound();
+                    if (pinnedTech?.id === tech.id) {
+                      setPinnedTech(null);
+                    } else {
+                      setPinnedTech(tech);
+                      setActiveGroup(b.id);
+                    }
                   }}
-                  onMouseLeave={() => setHoveredSub(null)}
-                  className={`absolute px-2.5 py-1.5 rounded-lg border text-xs font-mono transition-all duration-300 pointer-events-auto whitespace-nowrap shadow-sm select-none ${
-                    isSubHovered
-                      ? 'bg-ink border-accent text-accent scale-105 shadow-[0_0_15px_rgba(217,142,63,0.25)] z-40'
-                      : isSelected
-                      ? 'bg-ink/95 border-line-strong text-text hover:border-accent z-20'
+                  className={`absolute px-2.5 py-1 rounded-lg border text-xs font-mono transition-all duration-200 pointer-events-auto whitespace-nowrap select-none flex items-center gap-1.5 focus:outline-none focus-visible:ring-2 focus-visible:ring-accent cursor-pointer ${
+                    isActive
+                      ? 'bg-ink border-accent text-accent scale-105 shadow-[0_0_16px_rgba(217,142,63,0.35)] z-40'
+                      : isBranchActive
+                      ? 'bg-ink/95 border-line-strong text-text hover:border-accent hover:text-accent z-20'
                       : isDimmed
-                      ? 'bg-ink/30 border-line/30 text-text-dim/30 opacity-25 z-0 pointer-events-none'
-                      : 'bg-ink/70 border-line/60 text-text-muted hover:border-accent z-10'
+                      ? 'bg-ink/35 border-line/30 text-text-dim/35 opacity-30 z-10'
+                      : 'bg-ink/80 border-line/70 text-text-muted hover:border-accent hover:text-text z-10'
                   }`}
                   style={{
-                    left: `${(sub.x / VB_W) * 100}%`,
-                    top: `${(sub.y / VB_H) * 100}%`,
+                    left: `${(tech.x / VB_W) * 100}%`,
+                    top: `${(tech.y / VB_H) * 100}%`,
                     transform: 'translate(-50%, -50%)',
                   }}
+                  aria-label={`${tech.name}: ${tech.description}`}
                 >
-                  <div className="flex items-center gap-2">
-                    <span
-                      className={`w-1.5 h-1.5 rounded-full ${
-                        isSubHovered
-                          ? 'bg-accent shadow-[0_0_8px_var(--color-accent)]'
-                          : isSelected
-                          ? 'bg-accent'
-                          : 'bg-line-strong'
-                      }`}
-                    />
-                    <span>{sub.label}</span>
+                  <TechIcon id={tech.iconId} size={14} className="shrink-0" />
+                  <span className="font-medium text-[11px]">{tech.name}</span>
 
-                    {/* Quick Cross-Link Pill on hover */}
-                    {isSubHovered && projectsLinked.length > 0 && (
-                      <div className="flex items-center gap-1 ml-1.5 pl-2 border-l border-line-strong">
-                        <span className="text-[9px] text-text-dim uppercase tracking-wider">PROJECT:</span>
-                        {projectsLinked.map((proj) => (
-                          <button
-                            key={proj.name}
-                            type="button"
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              playSelectSound();
-                              document.getElementById('projects')?.scrollIntoView({ behavior: 'smooth' });
-                              setTimeout(() => triggerOpenProject(proj.name), 350);
-                            }}
-                            className="text-[10px] bg-accent/20 hover:bg-accent hover:text-ink text-accent px-1.5 py-0.5 rounded border border-accent/40 transition-colors cursor-pointer"
-                          >
-                            {proj.name} ↗
-                          </button>
-                        ))}
-                      </div>
-                    )}
-                  </div>
-                </div>
+                  {tech.status === 'learning' && (
+                    <span
+                      className="w-1.5 h-1.5 rounded-full bg-accent animate-pulse shadow-[0_0_6px_var(--color-accent)]"
+                      title="Currently learning"
+                    />
+                  )}
+
+                  {isPinned && (
+                    <span className="w-1 h-1 rounded-full bg-accent" />
+                  )}
+                </button>
               );
             });
           })}
-        </div>
-      </div>
 
-      {/* MOBILE VIEW (< md): Responsive compact stack */}
-      <div className="md:hidden space-y-3">
-        {skillGroups.map((group) => {
-          const isSelected = activeGroup === group.id;
-          return (
+          {/* DYNAMIC CONTEXTUAL DETAIL CARD (Positioned on top / side where empty space is) */}
+          {activeTech && (
             <div
-              key={`mobile-group-${group.id}`}
-              className={`rounded-xl border transition-all duration-300 overflow-hidden ${
-                isSelected ? 'border-accent bg-panel/60' : 'border-line bg-panel/20'
-              }`}
+              onMouseEnter={handleCardMouseEnter}
+              onMouseLeave={handleCardMouseLeave}
+              className="absolute w-72 sm:w-80 rounded-xl bg-panel/95 backdrop-blur-md border border-accent/60 p-3.5 shadow-[0_15px_40px_rgba(0,0,0,0.85),0_0_24px_rgba(217,142,63,0.2)] z-50 pointer-events-auto transition-all duration-200 animate-in fade-in zoom-in-95"
+              style={getSmartPopoverStyle(activeTech)}
             >
-              <button
-                type="button"
-                onClick={() => setActiveGroup(isSelected ? null : group.id)}
-                className="w-full px-4 py-3 flex items-center justify-between text-left"
-              >
-                <div className="flex items-center gap-2.5">
-                  <span
-                    className={`w-2 h-2 rounded-full ${
-                      isSelected ? 'bg-accent shadow-[0_0_8px_var(--color-accent)]' : 'bg-line-strong'
-                    }`}
-                  />
-                  <span className="font-medium text-text text-sm">
-                    {group.label}
-                  </span>
-                </div>
-                <span className="mono-label text-[11px] text-text-dim">
-                  {String(group.items.length).padStart(2, '0')}
-                </span>
-              </button>
+              {/* Corner CAD Reticles */}
+              <span className="absolute top-1.5 left-1.5 font-mono text-[9px] text-accent/50 pointer-events-none">
+                ┌
+              </span>
+              <span className="absolute top-1.5 right-1.5 font-mono text-[9px] text-accent/50 pointer-events-none">
+                ┐
+              </span>
+              <span className="absolute bottom-1.5 left-1.5 font-mono text-[9px] text-accent/50 pointer-events-none">
+                └
+              </span>
+              <span className="absolute bottom-1.5 right-1.5 font-mono text-[9px] text-accent/50 pointer-events-none">
+                ┘
+              </span>
 
-              {isSelected && (
-                <div className="px-4 pb-4 pt-2 border-t border-line/40">
-                  <div className="flex flex-wrap gap-1.5">
-                    {group.items.map((item) => (
-                      <span
-                        key={`mob-item-${item}`}
-                        className="px-2.5 py-1 rounded-md bg-ink border border-line text-xs font-mono text-text flex items-center gap-1.5"
+              {/* Card Header */}
+              <div className="flex items-center justify-between border-b border-line/70 pb-2 mb-2">
+                <div className="flex items-center gap-2">
+                  <div className="p-1 rounded-md bg-ink border border-accent/40 flex items-center justify-center">
+                    <TechIcon id={activeTech.iconId} size={16} />
+                  </div>
+                  <div>
+                    <h4 className="font-semibold text-text text-xs leading-tight">
+                      {activeTech.name}
+                    </h4>
+                    <span className="mono-label text-[8px] text-accent/80 uppercase tracking-wider block">
+                      BRANCH // {activeTech.category}
+                    </span>
+                  </div>
+                </div>
+
+                {activeTech.statusLabel && (
+                  <span
+                    className={`text-[9px] font-mono px-1.5 py-0.5 rounded border uppercase tracking-wider ${
+                      activeTech.status === 'learning'
+                        ? 'bg-accent/20 border-accent text-accent font-semibold animate-pulse shadow-[0_0_8px_rgba(217,142,63,0.3)]'
+                        : activeTech.status === 'dsa'
+                        ? 'bg-cyan-950/40 border-cyan-500/50 text-cyan-400 font-medium'
+                        : 'bg-ink/80 border-line text-text-dim'
+                    }`}
+                  >
+                    {activeTech.statusLabel}
+                  </span>
+                )}
+              </div>
+
+              {/* Description Body */}
+              <p className="text-xs text-text-muted leading-relaxed mb-2.5">
+                {activeTech.description}
+              </p>
+
+              {/* Verified Project Links */}
+              {activeTech.relatedProjects && activeTech.relatedProjects.length > 0 && (
+                <div className="pt-2 border-t border-line/60">
+                  <div className="flex items-center justify-between mb-1">
+                    <span className="mono-label text-[8px] text-text-dim tracking-wider uppercase">
+                      VERIFIED WORK:
+                    </span>
+                    <span className="text-[8px] text-accent/80 font-mono">
+                      {activeTech.relatedProjects.length} LINKED
+                    </span>
+                  </div>
+                  <div className="flex flex-wrap gap-1">
+                    {activeTech.relatedProjects.map((proj) => (
+                      <button
+                        key={proj.name}
+                        type="button"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          playSelectSound();
+                          document.getElementById('projects')?.scrollIntoView({ behavior: 'smooth' });
+                          setTimeout(() => triggerOpenProject(proj.name), 350);
+                        }}
+                        className="text-[10px] font-mono bg-accent/15 hover:bg-accent hover:text-ink text-accent px-2 py-0.5 rounded border border-accent/40 transition-all flex items-center gap-1 cursor-pointer"
+                        title={`Open architecture case study for ${proj.name}`}
                       >
-                        <span className="w-1.5 h-1.5 rounded-full bg-accent" />
-                        {item}
-                      </span>
+                        <span>{proj.name}</span>
+                        <span className="text-[9px] opacity-75">[{proj.tag}]</span>
+                        <span aria-hidden="true">&rarr;</span>
+                      </button>
                     ))}
                   </div>
                 </div>
               )}
             </div>
-          );
-        })}
+          )}
+        </div>
+
+        {/* Ambient Telemetry Readout Footnote */}
+        <div className="mt-1 flex items-center justify-between font-mono text-[11px] text-text-dim border-t border-line/50 pt-2 select-none">
+          <div className="flex items-center gap-2">
+            <span className="w-1.5 h-1.5 rounded-full bg-accent animate-pulse" />
+            <span className="text-text-muted">
+              Hover over any node to reveal its architectural specs in adjacent empty space. Click to pin.
+            </span>
+          </div>
+          <div className="flex items-center gap-2 text-[10px]">
+            <span>6 BRANCHES</span>
+            <span>•</span>
+            <span className="text-accent/80">{ALL_TECHNOLOGIES.length} SYSTEM NODES</span>
+          </div>
+        </div>
+      </div>
+
+      {/* MOBILE & TABLET VIEW (< lg): Vertical Hierarchical Stack with Tree Metaphor */}
+      <div className="lg:hidden space-y-4">
+        {/* Core Stack Master Node */}
+        <div className="flex items-center justify-between p-3.5 rounded-xl border border-accent/40 bg-panel/80 backdrop-blur-sm shadow-lg">
+          <div className="flex items-center gap-2.5">
+            <div className="relative flex items-center justify-center w-4 h-4">
+              <span className="w-2 h-2 rounded-full bg-accent shadow-[0_0_8px_var(--color-accent)] animate-pulse" />
+              <span className="absolute inset-0 rounded-full border border-accent animate-ping opacity-40" />
+            </div>
+            <div>
+              <span className="mono-label text-[11px] font-bold text-accent tracking-widest block">
+                {CENTER_NODE.label} // ENGINE
+              </span>
+              <span className="text-[10px] text-text-dim">
+                6 Connected Branches • Tap any technology to inspect
+              </span>
+            </div>
+          </div>
+          <span className="mono-label text-[10px] px-2 py-0.5 rounded bg-accent/15 text-accent border border-accent/30 font-semibold">
+            {ALL_TECHNOLOGIES.length} NODES
+          </span>
+        </div>
+
+        {/* 6 Vertical Branches with Left Tree Spine */}
+        <div className="relative pl-4 sm:pl-5 border-l-2 border-line space-y-3.5">
+          {TECH_BRANCHES.map((branch) => {
+            const isBranchActive =
+              activeGroup === branch.id || mobileExpandedBranch === branch.id;
+
+            return (
+              <div
+                key={`mob-branch-${branch.id}`}
+                className={`relative rounded-xl border transition-all duration-300 overflow-hidden ${
+                  isBranchActive ? 'border-accent/60 bg-panel/70' : 'border-line bg-panel/20'
+                }`}
+              >
+                {/* Tree Connector Node on Left Spine */}
+                <span
+                  className={`absolute -left-[21px] sm:-left-[25px] top-4 w-2.5 h-2.5 rounded-full border-2 transition-colors ${
+                    isBranchActive
+                      ? 'border-accent bg-ink shadow-[0_0_8px_var(--color-accent)]'
+                      : 'border-line-strong bg-ink'
+                  }`}
+                />
+
+                {/* Branch Header */}
+                <button
+                  type="button"
+                  onClick={() => {
+                    playSelectSound();
+                    setMobileExpandedBranch(isBranchActive ? null : branch.id);
+                    setActiveGroup(isBranchActive ? null : branch.id);
+                  }}
+                  className="w-full px-3.5 py-2.5 flex items-center justify-between text-left cursor-pointer"
+                >
+                  <div className="flex items-center gap-2">
+                    <span
+                      className={`w-1.5 h-1.5 rounded-full ${
+                        isBranchActive ? 'bg-accent shadow-[0_0_6px_var(--color-accent)]' : 'bg-line-strong'
+                      }`}
+                    />
+                    <span className="font-semibold text-text text-xs sm:text-sm">
+                      {branch.label}
+                    </span>
+                  </div>
+                  <span className="mono-label text-[10px] text-text-dim">
+                    {String(branch.technologies.length).padStart(2, '0')}
+                  </span>
+                </button>
+
+                {/* Technology Chips Grid */}
+                <div className="px-3.5 pb-3.5 pt-1">
+                  <div className="flex flex-wrap gap-1.5">
+                    {branch.technologies.map((tech) => {
+                      const isSelected = mobileSelectedTech?.id === tech.id;
+
+                      return (
+                        <button
+                          key={`mob-tech-${tech.id}`}
+                          type="button"
+                          onClick={() => {
+                            playSelectSound();
+                            setMobileSelectedTech(isSelected ? null : tech);
+                            setActiveGroup(branch.id);
+                          }}
+                          className={`px-2.5 py-1 rounded-md border text-[11px] font-mono flex items-center gap-1.5 transition-all cursor-pointer ${
+                            isSelected
+                              ? 'bg-accent/20 border-accent text-accent font-semibold shadow-[0_0_10px_rgba(217,142,63,0.25)]'
+                              : 'bg-ink border-line text-text-muted hover:border-accent hover:text-text'
+                          }`}
+                        >
+                          <TechIcon id={tech.iconId} size={13} className="shrink-0" />
+                          <span>{tech.name}</span>
+                          {tech.status === 'learning' && (
+                            <span className="w-1.5 h-1.5 rounded-full bg-accent animate-pulse" />
+                          )}
+                        </button>
+                      );
+                    })}
+                  </div>
+
+                  {/* Inline Detail Panel for Active Technology on Mobile */}
+                  {mobileSelectedTech &&
+                    branch.technologies.some((t) => t.id === mobileSelectedTech.id) && (
+                      <div className="mt-3 p-3 rounded-lg bg-ink/90 border border-accent/50 text-xs space-y-2 animate-in fade-in duration-200">
+                        <div className="flex items-center justify-between border-b border-line/60 pb-1.5">
+                          <div className="flex items-center gap-2">
+                            <TechIcon id={mobileSelectedTech.iconId} size={15} />
+                            <span className="font-semibold text-text">
+                              {mobileSelectedTech.name}
+                            </span>
+                          </div>
+                          <div className="flex items-center gap-2">
+                            {mobileSelectedTech.statusLabel && (
+                              <span
+                                className={`text-[9px] font-mono px-1.5 py-0.5 rounded border uppercase ${
+                                  mobileSelectedTech.status === 'learning'
+                                    ? 'bg-accent/20 border-accent text-accent animate-pulse font-semibold'
+                                    : 'bg-panel border-line text-text-dim'
+                                }`}
+                              >
+                                {mobileSelectedTech.statusLabel}
+                              </span>
+                            )}
+                            <button
+                              type="button"
+                              onClick={() => setMobileSelectedTech(null)}
+                              className="text-text-dim hover:text-accent font-mono text-xs px-1"
+                              aria-label="Close detail panel"
+                            >
+                              ✕
+                            </button>
+                          </div>
+                        </div>
+
+                        <p className="text-text-muted leading-relaxed text-[11px]">
+                          {mobileSelectedTech.description}
+                        </p>
+
+                        {mobileSelectedTech.relatedProjects &&
+                          mobileSelectedTech.relatedProjects.length > 0 && (
+                            <div className="pt-2 border-t border-line/50">
+                              <span className="mono-label text-[9px] text-text-dim uppercase tracking-wider block mb-1">
+                                LINKED PROJECTS:
+                              </span>
+                              <div className="flex flex-wrap gap-1">
+                                {mobileSelectedTech.relatedProjects.map((proj) => (
+                                  <button
+                                    key={proj.name}
+                                    type="button"
+                                    onClick={(e) => {
+                                      e.stopPropagation();
+                                      playSelectSound();
+                                      document
+                                        .getElementById('projects')
+                                        ?.scrollIntoView({ behavior: 'smooth' });
+                                      setTimeout(() => triggerOpenProject(proj.name), 350);
+                                    }}
+                                    className="text-[10px] font-mono bg-accent/15 text-accent px-2 py-0.5 rounded border border-accent/40"
+                                  >
+                                    {proj.name} ↗
+                                  </button>
+                                ))}
+                              </div>
+                            </div>
+                          )}
+                      </div>
+                    )}
+                </div>
+              </div>
+            );
+          })}
+        </div>
       </div>
     </div>
   );

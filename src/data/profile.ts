@@ -12,23 +12,13 @@ export const profile = {
   resumeUrl: '/resume.pdf', // Drop resume.pdf into /public to activate
 };
 
-export const skillGroups = [
-  {
-    id: 'frontend',
-    label: 'Frontend Development',
-    items: ['React.js', 'TypeScript', 'JavaScript (ES6+)', 'Three.js & React Three Fiber', 'Tailwind CSS'],
-  },
-  {
-    id: 'backend',
-    label: 'Backend & Data',
-    items: ['Node.js & Express.js', 'Python & FastAPI', 'MongoDB', 'Firebase & Firestore', 'SQLite', 'REST APIs'],
-  },
-  {
-    id: 'mobile',
-    label: 'Mobile & Additional',
-    items: ['Flutter & Dart', 'Kotlin & Java', 'GLSL Shaders', 'Chrome Extension APIs', 'Git & GitHub'],
-  },
-];
+import { TECH_BRANCHES } from './technologies';
+
+export const skillGroups = TECH_BRANCHES.map((branch) => ({
+  id: branch.id,
+  label: branch.label,
+  items: branch.technologies.map((tech) => tech.name),
+}));
 
 export interface Soundtrack {
   title: string;
