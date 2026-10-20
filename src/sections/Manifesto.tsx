@@ -4,13 +4,19 @@ import { Reveal } from '../components/Reveal';
 import { SplitText } from '../components/SplitText';
 import { useDeviceCapability } from '../hooks/useDeviceCapability';
 
-const DOMAINS = ['Web', 'AI', 'Geospatial systems', '3D & WebGL', 'Data pipelines'];
+const DOMAINS = [
+  'Full-Stack Development',
+  'AI & Machine Learning',
+  'Cloud Engineering',
+  '3D & WebGL',
+  'Interactive Experiences',
+];
 
-/**
- * Three keywords that sum up the developer's focus areas.
- * GSAP cycles through them when the section is in view.
- */
-const CYCLE_WORDS = ['REAL-TIME', 'GEOSPATIAL', '3D + WebGL'];
+const CYCLE_WORDS = [
+  'FULL-STACK',
+  'AI-POWERED',
+  'IMMERSIVE',
+];
 
 export function Manifesto() {
   const cycleRef = useRef<HTMLSpanElement | null>(null);
@@ -22,12 +28,10 @@ export function Manifesto() {
     const el = cycleRef.current;
 
     if (prefersReducedMotion) {
-      /* Reduced-motion: just reveal the first word statically */
       gsap.set(el, { autoAlpha: 1, y: 0 });
       return;
     }
 
-    /* Animated path: cycle through words with fade-up / fade-down transitions */
     let idx = 0;
     el.textContent = CYCLE_WORDS[0];
     gsap.set(el, { autoAlpha: 0, y: 14 });
@@ -35,9 +39,12 @@ export function Manifesto() {
     const ctx = gsap.context(() => {
       const step = () => {
         gsap.timeline()
-          /* Fade in */
-          .to(el, { autoAlpha: 1, y: 0, duration: 0.5, ease: 'power2.out' })
-          /* Dwell, then fade out */
+          .to(el, {
+            autoAlpha: 1,
+            y: 0,
+            duration: 0.5,
+            ease: 'power2.out',
+          })
           .to(el, {
             autoAlpha: 0,
             y: -10,
@@ -48,10 +55,11 @@ export function Manifesto() {
               idx = (idx + 1) % CYCLE_WORDS.length;
               el.textContent = CYCLE_WORDS[idx];
               gsap.set(el, { y: 14 });
-              step(); // recurse
+              step();
             },
           });
       };
+
       step();
     });
 
@@ -63,7 +71,6 @@ export function Manifesto() {
       id="manifesto"
       className="min-h-screen min-h-svh flex flex-col justify-center px-6 lg:pl-40 lg:pr-24 py-12 relative"
     >
-      {/* Main manifesto sentence — word-by-word reveal on scroll enter */}
       <SplitText
         as="h2"
         className="font-semibold leading-[1.05] tracking-tight text-[clamp(2rem,6vw,4.5rem)] max-w-4xl"
@@ -71,10 +78,9 @@ export function Manifesto() {
         stagger={0.04}
         duration={0.75}
       >
-        I build real-time systems that turn raw data into something you can see, explore, and trust.
+        I build intelligent, interactive experiences that bring together code, data, and the real world.
       </SplitText>
 
-      {/* Cycling keyword — hidden from AT, accessible label below */}
       <div
         aria-hidden="true"
         className="mt-14 h-[1.35em] overflow-hidden text-[clamp(1.75rem,5vw,3.5rem)]"
@@ -82,15 +88,16 @@ export function Manifesto() {
         <span
           ref={cycleRef}
           className="block font-semibold text-accent"
-          style={{ opacity: 0 }} /* GSAP or effect will reveal this */
+          style={{ opacity: 0 }}
         >
           {CYCLE_WORDS[0]}
         </span>
       </div>
-      {/* Screen-reader equivalent */}
-      <p className="sr-only">Focus areas: {CYCLE_WORDS.join(', ')}</p>
 
-      {/* Domain tags */}
+      <p className="sr-only">
+        Focus areas: {CYCLE_WORDS.join(', ')}
+      </p>
+
       <Reveal delay={0.1} className="flex flex-wrap gap-3 mt-10">
         {DOMAINS.map((domain) => (
           <span

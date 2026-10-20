@@ -240,6 +240,66 @@ export function playSlideSound(): void {
 }
 
 /**
+ * Cinematic cyber aperture shutter whoosh & confirmation chirp for page transitions
+ */
+export function playRouteTransitionSound(): void {
+  const ctx = getReadyContext();
+  if (!ctx) return;
+
+  const play = () => {
+    try {
+      const now = ctx.currentTime;
+      // 1. Pneumatic whoosh
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      const filter = ctx.createBiquadFilter();
+
+      osc.type = 'triangle';
+      osc.frequency.setValueAtTime(180, now);
+      osc.frequency.exponentialRampToValueAtTime(70, now + 0.22);
+
+      filter.type = 'lowpass';
+      filter.frequency.setValueAtTime(450, now);
+      filter.frequency.exponentialRampToValueAtTime(120, now + 0.22);
+
+      gain.gain.setValueAtTime(0.12, now);
+      gain.gain.exponentialRampToValueAtTime(0.001, now + 0.22);
+
+      osc.connect(filter);
+      filter.connect(gain);
+      gain.connect(ctx.destination);
+
+      osc.start(now);
+      osc.stop(now + 0.22);
+
+      // 2. High-tech confirmation chirp at closure
+      const chirp = ctx.createOscillator();
+      const chirpGain = ctx.createGain();
+      chirp.type = 'sine';
+      chirp.frequency.setValueAtTime(740, now + 0.14);
+      chirp.frequency.exponentialRampToValueAtTime(1180, now + 0.22);
+
+      chirpGain.gain.setValueAtTime(0.08, now + 0.14);
+      chirpGain.gain.exponentialRampToValueAtTime(0.001, now + 0.24);
+
+      chirp.connect(chirpGain);
+      chirpGain.connect(ctx.destination);
+
+      chirp.start(now + 0.14);
+      chirp.stop(now + 0.24);
+    } catch {
+      // Ignore
+    }
+  };
+
+  if (ctx.state === 'suspended') {
+    ctx.resume().then(play).catch(() => {});
+  } else {
+    play();
+  }
+}
+
+/**
  * Play a specific pitch/waveform for mini-games and synth keyboard
  */
 export function playSynthNote(freq: number, type: OscillatorType = 'triangle', duration = 0.18): void {
