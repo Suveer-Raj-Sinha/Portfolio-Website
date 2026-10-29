@@ -3,6 +3,7 @@ import { profile, skillGroups } from '../data/profile';
 import { projects } from '../data/projects';
 import { triggerOpenProject, triggerOpenTerminal } from '../utils/events';
 import { showToast } from '../hooks/useToast';
+import { THEMES, applyTheme } from '../utils/theme';
 import {
   playDrawerSound,
   playHoverSound,
@@ -180,7 +181,18 @@ export function CommandPalette() {
       },
     ];
 
-    return [...actionItems, ...navItems, ...projectItems, ...skillItems];
+    const themeItems: PaletteItem[] = THEMES.map((t) => ({
+      id: `theme-${t.id}`,
+      title: `Theme // ${t.label}`,
+      category: 'Actions' as const,
+      hint: t.description,
+      action: () => {
+        applyTheme(t.id);
+        showToast(`COLORWAY // ${t.label.toUpperCase()}`, 'accent');
+      },
+    }));
+
+    return [...themeItems, ...actionItems, ...navItems, ...projectItems, ...skillItems];
   }, []);
 
   // Filter items based on query
@@ -226,11 +238,11 @@ export function CommandPalette() {
       role="dialog"
       aria-modal="true"
       aria-label="Command Palette"
-      className="fixed inset-0 z-[120] flex items-start justify-center pt-[12vh] px-4 bg-ink/80 backdrop-blur-md animate-in fade-in duration-150"
+      className="fixed inset-0 z-[120] flex items-start justify-center pt-[8vh] sm:pt-[12vh] px-3 sm:px-4 bg-ink/80 backdrop-blur-md animate-in fade-in duration-150"
       onClick={() => setOpen(false)}
     >
       <div
-        className="w-full max-w-xl bg-ink border border-line-strong rounded-xl shadow-2xl overflow-hidden flex flex-col max-h-[70vh] animate-in zoom-in-95 duration-150"
+        className="w-full max-w-xl bg-ink border border-line-strong rounded-xl shadow-2xl overflow-hidden flex flex-col max-h-[80vh] sm:max-h-[70vh] animate-in zoom-in-95 duration-150"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Search header */}

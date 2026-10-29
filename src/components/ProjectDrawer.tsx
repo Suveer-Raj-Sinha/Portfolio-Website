@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState, useCallback } from 'react';
 import gsap from 'gsap';
-import type { Project } from '../data/projects';
+import type { Project, ProjectCaseStudy } from '../data/projects';
 import { Magnetic } from './Magnetic';
 import { useDeviceCapability } from '../hooks/useDeviceCapability';
 import { playDrawerSound, playSuccessSound } from '../utils/audio';
@@ -17,8 +17,31 @@ export function ProjectDrawer({ project: requestedProject, onClose }: ProjectDra
   const closeBtnRef = useRef<HTMLButtonElement | null>(null);
   const closeTimeoutRef = useRef<number | null>(null);
   const [renderedProject, setRenderedProject] = useState<Project | null>(requestedProject);
+  const [caseStudy, setCaseStudy] = useState<ProjectCaseStudy | null>(
+    requestedProject?.caseStudy ?? null
+  );
   const [isClosing, setIsClosing] = useState(false);
   const { prefersReducedMotion } = useDeviceCapability();
+
+  useEffect(() => {
+    if (!requestedProject) {
+      setCaseStudy(null);
+      return;
+    }
+    if (requestedProject.caseStudy) {
+      setCaseStudy(requestedProject.caseStudy);
+      return;
+    }
+    let cancelled = false;
+    import('../data/caseStudies').then((mod) => {
+      if (!cancelled) {
+        setCaseStudy(mod.projectCaseStudies[requestedProject.id] || null);
+      }
+    });
+    return () => {
+      cancelled = true;
+    };
+  }, [requestedProject]);
 
   useEffect(() => {
     if (requestedProject) {
@@ -112,7 +135,6 @@ export function ProjectDrawer({ project: requestedProject, onClose }: ProjectDra
   if (!renderedProject) return null;
 
   const project = renderedProject;
-  const { caseStudy } = project;
 
   const badgeDotColor =
     project.statusBadge?.color === 'emerald'
@@ -203,7 +225,7 @@ export function ProjectDrawer({ project: requestedProject, onClose }: ProjectDra
               {project.name}
             </h2>
             <p className="text-accent text-sm sm:text-base font-medium mb-4 leading-relaxed">
-              {caseStudy.headline}
+              {caseStudy?.headline || 'Architecture & Engineering Specifications'}
             </p>
             <p className="text-text-muted text-xs sm:text-sm leading-relaxed mb-6">
               {project.description}
@@ -232,7 +254,9 @@ export function ProjectDrawer({ project: requestedProject, onClose }: ProjectDra
             </div>
           </div>
 
-          {/* Section 1: Telemetry & Metrics */}
+          {caseStudy ? (
+            <>
+              {/* Section 1: Telemetry & Metrics */}
           <div>
             <div className="flex items-center gap-2 mb-3">
               <span className="w-1.5 h-1.5 rounded-full bg-accent" />
@@ -387,7 +411,14 @@ export function ProjectDrawer({ project: requestedProject, onClose }: ProjectDra
               ))}
             </div>
           </div>
+        </>
+      ) : (
+        <div className="py-20 flex flex-col items-center justify-center font-mono text-xs text-text-dim space-y-3">
+          <span className="w-2.5 h-2.5 rounded-full bg-accent animate-ping" />
+          <span>STREAMING ARCHITECTURE SPECIFICATIONS // SECURE TELEMETRY</span>
         </div>
+      )}
+    </div>
 
         {/* Footer Bar */}
         <div className="p-4 sm:p-5 border-t border-line flex items-center justify-between gap-3 shrink-0 bg-panel/80 backdrop-blur-md relative z-10">

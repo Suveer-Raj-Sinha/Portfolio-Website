@@ -1,0 +1,20 @@
+{
+  "name": "Suveer Raj Sinha — Full-Stack Developer & Creative Engineer",
+  "short_name": "Suveer Sinha",
+  "description": "Portfolio of Suveer Raj Sinha — Full-Stack Developer & Creative Engineer building real-time web applications, geospatial dashboards, and interactive 3D experiences.",
+  "start_url": "/",
+  "id": "/",
+  "display": "standalone",
+  "background_color": "#0a0d11",
+  "theme_color": "#0a0d11",
+  "orientation": "portrait-primary",
+  "icons": [
+    {
+      "src": "/favicon.svg",
+      "type": "image/svg+xml",
+      "sizes": "any",
+      "purpose": "any maskable"
+    }
+  ],
+  "categories": ["portfolio", "developer", "technology"]
+}

@@ -11,7 +11,7 @@ export function Footer() {
   };
 
   return (
-    <footer className="w-full max-w-6xl mx-auto pt-6 pb-2 border-t border-line/60 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-text-dim">
+    <footer className="w-full max-w-6xl mx-auto pt-6 pb-4 sm:pb-2 border-t border-line/60 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-text-dim">
       <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-center sm:text-left">
         <p>© {new Date().getFullYear()} Suveer Raj Sinha</p>
         <span className="hidden sm:inline text-line-strong">•</span>

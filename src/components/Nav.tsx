@@ -5,6 +5,7 @@ import { useDeviceCapability } from '../hooks/useDeviceCapability';
 import { triggerOpenCommandPalette, triggerOpenTerminal } from '../utils/events';
 import { isAudioEnabled, setAudioEnabled, playHoverSound, playSelectSound, playSuccessSound } from '../utils/audio';
 import { showToast } from '../hooks/useToast';
+import { THEMES, getSavedTheme, getThemeConfig, applyTheme, type ThemeId } from '../utils/theme';
 
 const NAV_LINKS = [
   { id: 'hero', label: 'Start' },
@@ -19,12 +20,50 @@ const NAV_LINKS = [
 export function Nav() {
   const [open, setOpen] = useState(false);
   const [soundOn, setSoundOn] = useState(() => isAudioEnabled());
+  const [themeOpen, setThemeOpen] = useState(false);
+  const [currentThemeId, setCurrentThemeId] = useState<ThemeId>(() => getSavedTheme());
   const { prefersReducedMotion } = useDeviceCapability();
 
   const overlayRef = useRef<HTMLDivElement | null>(null);
   const linksRef = useRef<(HTMLAnchorElement | null)[]>([]);
   const closeRef = useRef<HTMLButtonElement | null>(null);
   const hamburgerRef = useRef<HTMLButtonElement | null>(null);
+  const themeDropdownRef = useRef<HTMLDivElement | null>(null);
+
+  const activeTheme = getThemeConfig(currentThemeId);
+
+  // Sync theme with global state changes
+  useEffect(() => {
+    const handleThemeChange = (e: Event) => {
+      const custom = e as CustomEvent<{ themeId: ThemeId }>;
+      if (custom.detail?.themeId) {
+        setCurrentThemeId(custom.detail.themeId);
+      }
+    };
+    window.addEventListener('app-theme-changed', handleThemeChange);
+    return () => window.removeEventListener('app-theme-changed', handleThemeChange);
+  }, []);
+
+  // Close theme dropdown on outside click
+  useEffect(() => {
+    const handleClickOutside = (e: MouseEvent) => {
+      if (themeDropdownRef.current && !themeDropdownRef.current.contains(e.target as Node)) {
+        setThemeOpen(false);
+      }
+    };
+    if (themeOpen) {
+      window.addEventListener('mousedown', handleClickOutside);
+    }
+    return () => window.removeEventListener('mousedown', handleClickOutside);
+  }, [themeOpen]);
+
+  const handleSelectTheme = (id: ThemeId) => {
+    playSelectSound();
+    applyTheme(id);
+    setCurrentThemeId(id);
+    setThemeOpen(false);
+    showToast(`COLORWAY // ${getThemeConfig(id).label.toUpperCase()}`, 'accent');
+  };
 
   // Sync sound with global state changes
   useEffect(() => {
@@ -150,9 +189,9 @@ export function Nav() {
       <header className="fixed top-0 left-0 w-full z-50 pointer-events-none">
         <div className="absolute inset-0 bg-gradient-to-b from-ink via-ink/85 to-transparent h-24 lg:h-28" />
 
-        <div className="relative px-6 lg:px-20 py-5 flex items-center justify-between">
+        <div className="relative px-4 sm:px-6 lg:px-20 py-4 sm:py-5 flex items-center justify-between">
           {/* Left: Logo */}
-          <div className="pointer-events-auto flex items-center gap-4">
+          <div className="pointer-events-auto flex items-center gap-4 min-w-0">
             <a
               href="#hero"
               onClick={(e) => {
@@ -164,7 +203,7 @@ export function Nav() {
                 }
               }}
               onMouseEnter={playHoverSound}
-              className="font-semibold tracking-tight text-lg text-text hover:text-accent transition-colors shrink-0 cursor-pointer"
+              className="font-semibold tracking-tight text-base sm:text-lg text-text hover:text-accent transition-colors shrink-0 cursor-pointer"
             >
               {profile.name}
             </a>
@@ -186,7 +225,7 @@ export function Nav() {
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
               </svg>
               <span className="hidden sm:inline">Commands</span>
-              <kbd className="text-[9px] text-text-dim border border-line/60 rounded px-1 ml-0.5">⌘K</kbd>
+              <kbd className="hidden sm:inline-block text-[9px] text-text-dim border border-line/60 rounded px-1 ml-0.5">⌘K</kbd>
             </button>
 
             {/* Cyber Terminal Trigger */}
@@ -203,13 +242,75 @@ export function Nav() {
               <span>Terminal</span>
             </button>
 
+            {/* Theme Colorway Switcher Pill */}
+            <div className="relative" ref={themeDropdownRef}>
+              <button
+                type="button"
+                onClick={() => {
+                  playSelectSound();
+                  setThemeOpen((prev) => !prev);
+                }}
+                onMouseEnter={playHoverSound}
+                className="flex items-center gap-1.5 mono-label text-[11px] border border-line-strong rounded-full px-2.5 sm:px-3 py-1.5 bg-ink/60 backdrop-blur-sm hover:border-accent hover:text-accent transition-all cursor-pointer focus-visible:outline-2 focus-visible:outline-accent"
+                title={`Active Theme: ${activeTheme.label}. Click to switch colorway.`}
+                aria-expanded={themeOpen}
+                aria-haspopup="true"
+              >
+                <span
+                  className="w-2 h-2 rounded-full shadow-[0_0_8px_currentColor] shrink-0"
+                  style={{ backgroundColor: activeTheme.accentHex }}
+                />
+                <span className="hidden sm:inline font-mono">{activeTheme.shortLabel}</span>
+                <span className="text-[8px] text-text-dim">▼</span>
+              </button>
+
+              {/* Theme Dropdown HUD */}
+              {themeOpen && (
+                <div
+                  className="absolute right-0 top-full mt-2 w-52 rounded-xl border border-line-strong bg-panel/95 backdrop-blur-md shadow-2xl p-1.5 z-60 animate-in fade-in zoom-in-95 duration-150 font-mono text-xs"
+                  onClick={(e) => e.stopPropagation()}
+                >
+                  <div className="px-2.5 py-1 text-[9px] text-text-dim border-b border-line/60 uppercase tracking-widest flex items-center justify-between">
+                    <span>SYS_COLORWAY</span>
+                    <span>6 PRESETS</span>
+                  </div>
+                  <div className="py-1 space-y-0.5">
+                    {THEMES.map((t) => (
+                      <button
+                        key={t.id}
+                        type="button"
+                        onClick={() => handleSelectTheme(t.id)}
+                        onMouseEnter={playHoverSound}
+                        className={`w-full text-left px-2.5 py-1.5 rounded-lg flex items-center justify-between text-xs transition-colors cursor-pointer ${
+                          activeTheme.id === t.id
+                            ? 'bg-accent/20 text-accent font-semibold border border-accent/40'
+                            : 'text-text-muted hover:text-text hover:bg-panel border border-transparent'
+                        }`}
+                      >
+                        <div className="flex items-center gap-2">
+                          <span
+                            className="w-2.5 h-2.5 rounded-full border border-line shrink-0"
+                            style={{ backgroundColor: t.accentHex }}
+                          />
+                          <span>{t.label}</span>
+                        </div>
+                        {activeTheme.id === t.id && (
+                          <span className="text-[10px] text-accent">●</span>
+                        )}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </div>
+
             {/* Audio Synthesizer Toggle */}
             <button
               onClick={toggleAudio}
               onMouseEnter={playHoverSound}
               className={`flex items-center gap-1.5 mono-label text-[11px] border rounded-full px-3 py-1.5 backdrop-blur-sm transition-all focus-visible:outline-2 focus-visible:outline-accent ${
                 soundOn
-                  ? 'border-accent text-accent bg-accent/10 shadow-[0_0_12px_rgba(217,142,63,0.2)]'
+                  ? 'border-accent text-accent bg-accent/10 shadow-[0_0_12px_color-mix(in_srgb,var(--color-accent)_35%,transparent)]'
                   : 'border-line-strong text-text-muted bg-ink/60 hover:border-accent hover:text-accent'
               }`}
               title={soundOn ? 'Mute procedural audio' : 'Enable procedural audio'}
@@ -264,7 +365,7 @@ export function Nav() {
         role="dialog"
         aria-modal="true"
         aria-label="Navigation menu"
-        className="fixed inset-0 z-[55] bg-ink/[0.97] backdrop-blur-md flex flex-col px-6 pt-6 pb-8 lg:hidden"
+        className="fixed inset-0 z-[55] bg-ink/[0.97] backdrop-blur-md flex flex-col px-6 pt-6 pb-8 lg:hidden overflow-y-auto"
         // Hidden by default; GSAP drives visibility so it never flashes
         style={{ visibility: 'hidden', opacity: 0 }}
         onKeyDown={handleOverlayKeyDown}
@@ -341,42 +442,69 @@ export function Nav() {
           </a>
         </nav>
 
-        {/* Quick Tools & Resume in Mobile Menu */}
-        <div className="pt-4 border-t border-line flex flex-wrap items-center gap-3">
-          <button
-            onClick={() => {
-              setOpen(false);
-              triggerOpenCommandPalette();
-            }}
-            className="mono-label text-xs border border-line-strong rounded-full px-3.5 py-2 hover:border-accent hover:text-accent transition-colors"
-          >
-            ⌘K Commands
-          </button>
-          <button
-            onClick={() => {
-              setOpen(false);
-              triggerOpenTerminal();
-            }}
-            className="mono-label text-xs border border-line-strong rounded-full px-3.5 py-2 hover:border-accent hover:text-accent transition-colors"
-          >
-            &gt;_ Terminal
-          </button>
-          <button
-            onClick={toggleAudio}
-            className={`mono-label text-xs border rounded-full px-3.5 py-2 transition-colors ${
-              soundOn ? 'border-accent text-accent' : 'border-line-strong text-text-muted'
-            }`}
-          >
-            {soundOn ? 'Audio ON' : 'Audio OFF'}
-          </button>
-          <a
-            href={profile.resumeUrl}
-            target="_blank"
-            rel="noreferrer"
-            className="mono-label text-xs border border-line-strong rounded-full px-3.5 py-2 text-center hover:border-accent hover:text-accent transition-colors ml-auto"
-          >
-            Resume ↗
-          </a>
+        {/* Quick Tools & Theme Colorway in Mobile Menu */}
+        <div className="pt-4 border-t border-line space-y-3">
+          <div className="flex items-center justify-between pb-1">
+            <span className="mono-label text-[10px] text-text-dim">SYS_COLORWAY //</span>
+            <div className="flex items-center gap-1.5">
+              {THEMES.map((t) => (
+                <button
+                  key={t.id}
+                  type="button"
+                  onClick={() => handleSelectTheme(t.id)}
+                  title={t.label}
+                  className={`w-7 h-7 rounded-full border flex items-center justify-center transition-all cursor-pointer ${
+                    activeTheme.id === t.id
+                      ? 'border-accent scale-110 shadow-[0_0_8px_currentColor]'
+                      : 'border-line/60 hover:scale-105'
+                  }`}
+                  style={{ backgroundColor: t.inkHex }}
+                >
+                  <span
+                    className="w-2.5 h-2.5 rounded-full"
+                    style={{ backgroundColor: t.accentHex }}
+                  />
+                </button>
+              ))}
+            </div>
+          </div>
+
+          <div className="flex flex-wrap items-center gap-2.5">
+            <button
+              onClick={() => {
+                setOpen(false);
+                triggerOpenCommandPalette();
+              }}
+              className="mono-label text-xs border border-line-strong rounded-full px-3.5 py-1.5 hover:border-accent hover:text-accent transition-colors"
+            >
+              ⌘K Commands
+            </button>
+            <button
+              onClick={() => {
+                setOpen(false);
+                triggerOpenTerminal();
+              }}
+              className="mono-label text-xs border border-line-strong rounded-full px-3.5 py-1.5 hover:border-accent hover:text-accent transition-colors"
+            >
+              &gt;_ Terminal
+            </button>
+            <button
+              onClick={toggleAudio}
+              className={`mono-label text-xs border rounded-full px-3.5 py-1.5 transition-colors ${
+                soundOn ? 'border-accent text-accent' : 'border-line-strong text-text-muted'
+              }`}
+            >
+              {soundOn ? 'Audio ON' : 'Audio OFF'}
+            </button>
+            <a
+              href={profile.resumeUrl}
+              target="_blank"
+              rel="noreferrer"
+              className="mono-label text-xs border border-line-strong rounded-full px-3.5 py-1.5 text-center hover:border-accent hover:text-accent transition-colors ml-auto"
+            >
+              Resume ↗
+            </a>
+          </div>
         </div>
       </div>
     </>

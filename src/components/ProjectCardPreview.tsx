@@ -95,7 +95,7 @@ export function ProjectCardPreview({ image, name, badge, onSelect }: ProjectCard
       onKeyDown={handleKeyDown}
       onMouseMove={onMouseMove}
       onMouseLeave={onMouseLeave}
-      className={`relative w-full lg:w-1/2 aspect-video border border-line rounded-xl bg-panel overflow-hidden project-preview shadow-2xl transition-all duration-300 hover:shadow-[0_25px_60px_rgba(0,0,0,0.6)] group will-change-transform ${
+      className={`relative w-full lg:w-1/2 aspect-video border border-line rounded-xl bg-panel overflow-hidden project-preview shadow-lg sm:shadow-2xl transition-all duration-300 hover:shadow-[0_25px_60px_rgba(0,0,0,0.6)] group will-change-transform ${
         onSelect ? 'cursor-pointer hover:border-accent/80' : ''
       }`}
       style={{ transformStyle: 'preserve-3d' }}

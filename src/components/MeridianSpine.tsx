@@ -149,7 +149,7 @@ export function MeridianSpine() {
       </nav>
 
       {/* Mobile/tablet: thin top progress bar */}
-      <div className="lg:hidden fixed top-0 left-0 w-full h-[2px] z-40 bg-line">
+      <div className="lg:hidden fixed top-0 left-0 w-full h-[2px] z-[51] bg-line">
         <div
           className="h-full bg-accent transition-[width] duration-200 ease-out"
           style={{ width: `${progress * 100}%` }}

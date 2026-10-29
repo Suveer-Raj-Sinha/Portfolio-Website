@@ -1,5 +1,6 @@
 import { useEffect, useRef } from 'react';
 import { useDeviceCapability } from '../hooks/useDeviceCapability';
+import { getSavedTheme, getThemeConfig, type ThemeConfig } from '../utils/theme';
 
 export type GeometryMode = 'sphere' | 'torus' | 'rings';
 export type SpeedMode = 0.5 | 1 | 2;
@@ -21,10 +22,24 @@ export function HeroOrbitalCanvas({
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const { prefersReducedMotion, hasFinePointer } = useDeviceCapability();
   const controlsRef = useRef(controls);
+  const accentRgbRef = useRef<[number, number, number]>(
+    getThemeConfig(getSavedTheme()).accentRgb
+  );
 
   useEffect(() => {
     controlsRef.current = controls;
   }, [controls]);
+
+  useEffect(() => {
+    const handleThemeChange = (e: Event) => {
+      const custom = e as CustomEvent<{ theme: ThemeConfig }>;
+      if (custom.detail?.theme?.accentRgb) {
+        accentRgbRef.current = custom.detail.theme.accentRgb;
+      }
+    };
+    window.addEventListener('app-theme-changed', handleThemeChange);
+    return () => window.removeEventListener('app-theme-changed', handleThemeChange);
+  }, []);
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -57,8 +72,10 @@ export function HeroOrbitalCanvas({
     window.addEventListener('mousemove', handleMouseMove, { passive: true });
 
     let angle = 0;
+    let isVisible = false;
 
     const render = () => {
+      if (!isVisible) return;
       ctx.clearRect(0, 0, width, height);
 
       const cx = width / 2;
@@ -101,13 +118,14 @@ export function HeroOrbitalCanvas({
       };
 
       // Helper for depth-attenuated stroke styling
-      // Front elements (closer to camera, smaller z2) glow in bright amber
+      // Front elements (closer to camera, smaller z2) glow in active theme color
       // Back elements (further from camera, larger z2) fade into subtle technical lines
+      const [ar, ag, ab] = accentRgbRef.current;
       const getDepthStyle = (avgZ: number, baseAlpha = 0.5) => {
         const normalized = Math.max(0, Math.min(1, (160 - avgZ) / 320));
         if (normalized > 0.45) {
           const alpha = (0.2 + normalized * 0.7) * baseAlpha;
-          return `rgba(217, 142, 63, ${alpha.toFixed(3)})`;
+          return `rgba(${ar}, ${ag}, ${ab}, ${alpha.toFixed(3)})`;
         }
         const alpha = (0.05 + normalized * 0.25) * baseAlpha;
         return `rgba(255, 255, 255, ${alpha.toFixed(3)})`;
@@ -587,9 +605,22 @@ export function HeroOrbitalCanvas({
       }
     };
 
-    render();
+    const observer = new IntersectionObserver(([entry]) => {
+      if (entry.isIntersecting) {
+        if (!isVisible) {
+          isVisible = true;
+          animId = requestAnimationFrame(render);
+        }
+      } else {
+        isVisible = false;
+        cancelAnimationFrame(animId);
+      }
+    });
+
+    observer.observe(canvas);
 
     return () => {
+      observer.disconnect();
       cancelAnimationFrame(animId);
       window.removeEventListener('mousemove', handleMouseMove);
     };

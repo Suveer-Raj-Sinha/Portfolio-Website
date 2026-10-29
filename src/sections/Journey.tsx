@@ -180,7 +180,7 @@ export function Journey() {
 
       {/* Mode Switcher Tabs */}
       <Reveal delay={0.12}>
-        <div className="flex items-center gap-1.5 mb-5 max-w-md">
+        <div className="flex items-center gap-1.5 mb-5 max-w-md overflow-x-auto scrollbar-none">
           {(['all', 'experience', 'education'] as const).map((tab) => (
             <button
               key={tab}

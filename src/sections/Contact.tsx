@@ -33,14 +33,14 @@ export function Contact() {
               </p>
 
               {/* Email Copy + Open Client Buttons */}
-              <div className="flex flex-wrap items-center gap-3 mb-6">
+              <div className="flex flex-col sm:flex-row flex-wrap items-stretch sm:items-center gap-3 mb-6">
                 <button
                   type="button"
                   onClick={handleCopyEmail}
-                  className="px-5 py-3 rounded-xl border border-line bg-panel/70 hover:border-accent hover:bg-panel transition-all duration-300 flex items-center gap-3 group text-left cursor-pointer"
+                  className="px-4 sm:px-5 py-3 rounded-xl border border-line bg-panel/70 hover:border-accent hover:bg-panel transition-all duration-300 flex items-center gap-3 group text-left cursor-pointer min-w-0"
                   aria-label="Copy email address to clipboard"
                 >
-                  <span className="font-mono text-xs sm:text-sm text-text group-hover:text-accent transition-colors font-medium">
+                  <span className="font-mono text-xs sm:text-sm text-text group-hover:text-accent transition-colors font-medium truncate">
                     {profile.email}
                   </span>
                   <span className="p-1 rounded bg-ink border border-line text-text-dim group-hover:text-accent transition-colors">

@@ -130,7 +130,7 @@ export function AboutHudCard() {
       ref={cardRef}
       onMouseMove={onMouseMove}
       onMouseLeave={onMouseLeave}
-      className="relative w-full max-w-sm aspect-[4/5] rounded-2xl bg-panel/80 border border-line p-6 flex flex-col justify-between overflow-hidden shadow-2xl backdrop-blur-md transition-shadow duration-300 hover:shadow-[0_20px_50px_rgba(0,0,0,0.6)] group select-none will-change-transform"
+      className="relative w-full max-w-sm mx-auto lg:mx-0 sm:aspect-[4/5] rounded-2xl bg-panel/80 border border-line p-5 sm:p-6 flex flex-col justify-between overflow-hidden shadow-2xl backdrop-blur-md transition-shadow duration-300 hover:shadow-[0_20px_50px_rgba(0,0,0,0.6)] group select-none will-change-transform"
       style={{ transformStyle: 'preserve-3d' }}
     >
       {/* Corner CAD Reticles */}

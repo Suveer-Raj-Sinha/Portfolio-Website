@@ -90,9 +90,9 @@ body {
   pointer-events: none;
   z-index: 0;
   background: 
-    radial-gradient(circle at 12% 15%, rgba(217, 142, 63, 0.05) 0%, transparent 45%),
-    radial-gradient(circle at 88% 80%, rgba(217, 142, 63, 0.035) 0%, transparent 40%),
-    radial-gradient(circle at 50% 50%, rgba(217, 142, 63, 0.015) 0%, transparent 60%);
+    radial-gradient(circle at 12% 15%, color-mix(in srgb, var(--color-accent) 6%, transparent) 0%, transparent 45%),
+    radial-gradient(circle at 88% 80%, color-mix(in srgb, var(--color-accent) 4.5%, transparent) 0%, transparent 40%),
+    radial-gradient(circle at 50% 50%, color-mix(in srgb, var(--color-accent) 2%, transparent) 0%, transparent 60%);
 }
 
 /* Subtle Technical Grid & Coordinate Dots Pattern */
@@ -104,13 +104,99 @@ body {
   pointer-events: none;
   z-index: 0;
   background-image: 
-    radial-gradient(circle at center, rgba(217, 142, 63, 0.14) 1px, transparent 1.5px),
+    radial-gradient(circle at center, color-mix(in srgb, var(--color-accent) 18%, transparent) 1px, transparent 1.5px),
     linear-gradient(to right, rgba(255, 255, 255, 0.02) 1px, transparent 1px),
     linear-gradient(to bottom, rgba(255, 255, 255, 0.02) 1px, transparent 1px);
   background-size: 40px 40px, 40px 40px, 40px 40px;
   background-position: -0.5px -0.5px, 0 0, 0 0;
   mask-image: radial-gradient(circle at 50% 50%, rgba(0, 0, 0, 0.85) 0%, rgba(0, 0, 0, 0.25) 100%);
   -webkit-mask-image: radial-gradient(circle at 50% 50%, rgba(0, 0, 0, 0.85) 0%, rgba(0, 0, 0, 0.25) 100%);
+}
+
+/* ── Sci-Fi Terminal Colorways (Data-Theme Overrides) ── */
+html[data-theme="amber"],
+:root {
+  --color-ink: #0a0d11;
+  --color-panel: #10151b;
+  --color-panel-raised: #151b22;
+  --color-line: #1e2731;
+  --color-line-strong: #2a3540;
+  --color-text: #e9ecee;
+  --color-text-muted: #6e7c89;
+  --color-text-dim: #4a5560;
+  --color-accent: #d98e3f;
+  --color-accent-dim: #8a5a28;
+  --color-accent-soft: #d98e3f1a;
+}
+
+html[data-theme="cyber"] {
+  --color-ink: #040a12;
+  --color-panel: #081420;
+  --color-panel-raised: #0d1e30;
+  --color-line: #122a42;
+  --color-line-strong: #1b3d5f;
+  --color-text: #e2f3fe;
+  --color-text-muted: #6b8fae;
+  --color-text-dim: #425c75;
+  --color-accent: #00f0ff;
+  --color-accent-dim: #0284c7;
+  --color-accent-soft: #00f0ff1a;
+}
+
+html[data-theme="matrix"] {
+  --color-ink: #050a06;
+  --color-panel: #0a140d;
+  --color-panel-raised: #0f1e14;
+  --color-line: #172c1e;
+  --color-line-strong: #213f2b;
+  --color-text: #e6f9ed;
+  --color-text-muted: #729e7f;
+  --color-text-dim: #496952;
+  --color-accent: #10b981;
+  --color-accent-dim: #059669;
+  --color-accent-soft: #10b9811a;
+}
+
+html[data-theme="synthwave"] {
+  --color-ink: #0d0614;
+  --color-panel: #150a21;
+  --color-panel-raised: #1c0e2d;
+  --color-line: #2a1742;
+  --color-line-strong: #3d2160;
+  --color-text: #f9effe;
+  --color-text-muted: #9b76ab;
+  --color-text-dim: #674c73;
+  --color-accent: #e879f9;
+  --color-accent-dim: #c026d3;
+  --color-accent-soft: #e879f91a;
+}
+
+html[data-theme="titanium"] {
+  --color-ink: #09090b;
+  --color-panel: #121215;
+  --color-panel-raised: #18181d;
+  --color-line: #27272f;
+  --color-line-strong: #383842;
+  --color-text: #f8fafc;
+  --color-text-muted: #828292;
+  --color-text-dim: #545460;
+  --color-accent: #e2e8f0;
+  --color-accent-dim: #94a3b8;
+  --color-accent-soft: #e2e8f01a;
+}
+
+html[data-theme="cobalt"] {
+  --color-ink: #060814;
+  --color-panel: #0a1024;
+  --color-panel-raised: #0f1733;
+  --color-line: #17234a;
+  --color-line-strong: #233469;
+  --color-text: #e4f1ff;
+  --color-text-muted: #718abb;
+  --color-text-dim: #495b80;
+  --color-accent: #38bdf8;
+  --color-accent-dim: #0284c7;
+  --color-accent-soft: #38bdf81a;
 }
 
 ::selection {
@@ -137,12 +223,14 @@ body {
 /* Phones should keep native scrolling instead of forcing each section to snap. */
 @media (max-width: 767px) {
   html {
-    scroll-snap-type: y proximity;
+    scroll-snap-type: none;
   }
 
   section,
   .snap-slide {
     scroll-snap-stop: normal;
+    scroll-snap-align: none;
+    min-height: auto !important;
   }
 }
 

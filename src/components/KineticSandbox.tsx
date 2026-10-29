@@ -1,6 +1,7 @@
-﻿import { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useDeviceCapability } from '../hooks/useDeviceCapability';
 import { playHoverSound } from '../utils/audio';
+import { getSavedTheme, getThemeConfig, type ThemeConfig } from '../utils/theme';
 
 interface Particle {
   x: number;
@@ -20,6 +21,20 @@ export function KineticSandbox() {
     y: -100,
     active: false,
   });
+  const accentRgbRef = useRef<[number, number, number]>(
+    getThemeConfig(getSavedTheme()).accentRgb
+  );
+
+  useEffect(() => {
+    const handleThemeChange = (e: Event) => {
+      const custom = e as CustomEvent<{ theme: ThemeConfig }>;
+      if (custom.detail?.theme?.accentRgb) {
+        accentRgbRef.current = custom.detail.theme.accentRgb;
+      }
+    };
+    window.addEventListener('app-theme-changed', handleThemeChange);
+    return () => window.removeEventListener('app-theme-changed', handleThemeChange);
+  }, []);
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -66,6 +81,7 @@ export function KineticSandbox() {
       ctx.clearRect(0, 0, width, height);
 
       const mouse = mouseRef.current;
+      const [ar, ag, ab] = accentRgbRef.current;
 
       // Draw faint connections
       for (let i = 0; i < particles.length; i++) {
@@ -76,7 +92,7 @@ export function KineticSandbox() {
 
           if (dist < 42) {
             const lineAlpha = (1 - dist / 42) * 0.25;
-            ctx.strokeStyle = `rgba(245, 158, 11, ${lineAlpha})`;
+            ctx.strokeStyle = `rgba(${ar}, ${ag}, ${ab}, ${lineAlpha})`;
             ctx.lineWidth = 0.75;
             ctx.beginPath();
             ctx.moveTo(particles[i].x, particles[i].y);
@@ -124,8 +140,8 @@ export function KineticSandbox() {
         }
 
         // Render particle
-        ctx.fillStyle = `rgba(245, 158, 11, ${p.alpha})`;
-        ctx.shadowColor = 'rgba(245, 158, 11, 0.6)';
+        ctx.fillStyle = `rgba(${ar}, ${ag}, ${ab}, ${p.alpha})`;
+        ctx.shadowColor = `rgba(${ar}, ${ag}, ${ab}, 0.6)`;
         ctx.shadowBlur = 4;
         ctx.beginPath();
         ctx.arc(p.x, p.y, p.radius, 0, Math.PI * 2);
@@ -135,7 +151,7 @@ export function KineticSandbox() {
 
       // If mouse is active, draw a subtle reticle dot
       if (mouse.active) {
-        ctx.strokeStyle = 'rgba(245, 158, 11, 0.4)';
+        ctx.strokeStyle = `rgba(${ar}, ${ag}, ${ab}, 0.4)`;
         ctx.lineWidth = 1;
         ctx.beginPath();
         ctx.arc(mouse.x, mouse.y, 8, 0, Math.PI * 2);

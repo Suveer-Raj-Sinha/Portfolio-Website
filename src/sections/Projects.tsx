@@ -222,7 +222,7 @@ export function Projects({ onNavigateProjects }: ProjectsProps) {
                 </div>
 
                 {i === featuredProjects.length - 1 && (
-                  <div className="mt-8 pt-5 border-t border-line/60 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 bg-panel/30 p-3.5 rounded-xl border border-line/70">
+                  <div className="mt-6 sm:mt-8 pt-4 sm:pt-5 border-t border-line/60 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 bg-panel/30 p-3 sm:p-3.5 rounded-xl border border-line/70">
                     <div>
                       <p className="text-[11px] font-mono text-accent font-semibold tracking-wider">
                         FULL REPOSITORY DIRECTORY

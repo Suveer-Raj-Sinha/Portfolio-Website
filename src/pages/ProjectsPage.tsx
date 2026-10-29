@@ -187,7 +187,7 @@ export function ProjectsPage({ onNavigateHome }: ProjectsPageProps) {
         </div>
 
         {/* ── Compact Top Controls Bar ────────────────────────────────────── */}
-        <div className="bg-panel-raised border border-line rounded-xl p-3 mb-4 flex flex-col sm:flex-row items-stretch sm:items-center gap-3 shadow-md">
+        <div className="bg-panel-raised border border-line rounded-xl p-2.5 sm:p-3 mb-4 flex flex-col sm:flex-row items-stretch sm:items-center gap-2.5 sm:gap-3 shadow-md">
           {/* Quick Search Input */}
           <div className="relative flex-1 min-w-[200px]">
             <span className="absolute left-3 text-text-muted pointer-events-none text-xs font-mono">

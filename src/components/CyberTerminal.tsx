@@ -12,6 +12,7 @@ import {
 } from '../utils/audio';
 import { SnakeGame } from './terminal/SnakeGame';
 import { TerminalSynth } from './terminal/TerminalSynth';
+import { applyTheme, type ThemeId } from '../utils/theme';
 
 interface TerminalLine {
   id: string;
@@ -19,7 +20,7 @@ interface TerminalLine {
   text: string | React.ReactNode;
 }
 
-type TerminalTheme = 'default' | 'matrix' | 'amber' | 'cyber' | 'synthwave';
+type TerminalTheme = 'default' | 'matrix' | 'amber' | 'cyber' | 'synthwave' | 'titanium' | 'cobalt';
 type ActiveMode = 'default' | 'snake' | 'synth';
 
 const THEME_STYLES: Record<
@@ -66,6 +67,20 @@ const THEME_STYLES: Record<
     accent: 'text-fuchsia-400',
     prompt: 'text-fuchsia-400',
     input: 'caret-fuchsia-400',
+  },
+  titanium: {
+    card: 'bg-[#09090b]/95 border-slate-500/40 text-slate-200 shadow-[0_0_30px_rgba(226,232,240,0.15)]',
+    titleBar: 'bg-[#18181d]/60 border-slate-500/30 text-slate-300',
+    accent: 'text-slate-200',
+    prompt: 'text-slate-200',
+    input: 'caret-slate-200',
+  },
+  cobalt: {
+    card: 'bg-[#060814]/95 border-sky-500/40 text-sky-300 shadow-[0_0_30px_rgba(56,189,248,0.18)]',
+    titleBar: 'bg-[#0f1733]/60 border-sky-500/30 text-sky-400',
+    accent: 'text-sky-400',
+    prompt: 'text-sky-400',
+    input: 'caret-sky-400',
   },
 };
 
@@ -173,6 +188,7 @@ export function CyberTerminal() {
                   <p><span className="text-text font-mono">about</span> / <span className="text-text font-mono">cat bio.txt</span> - View developer bio</p>
                   <p><span className="text-text font-mono">journey</span> - View education & internship timeline</p>
                   <p><span className="text-text font-mono">contact</span> - Display email and social links</p>
+                  <p><span className="text-text font-mono">resume</span> / <span className="text-text font-mono">cv</span> - Open curriculum vitae / resume</p>
                   <p><span className="text-text font-mono">sudo hire</span> - Priority transmission to hire Suveer</p>
                 </div>
               </div>
@@ -224,19 +240,21 @@ export function CyberTerminal() {
       // 6: Theme Switcher
       case 'theme': {
         const requestedTheme = args[1] as TerminalTheme;
-        if (['default', 'matrix', 'amber', 'cyber', 'synthwave'].includes(requestedTheme)) {
+        if (['default', 'matrix', 'amber', 'cyber', 'synthwave', 'titanium', 'cobalt'].includes(requestedTheme)) {
           setTheme(requestedTheme);
+          const globalThemeId: ThemeId = requestedTheme === 'default' ? 'amber' : (requestedTheme as ThemeId);
+          applyTheme(globalThemeId);
           playSuccessSound();
           newLines.push({
             id: `out-${Date.now()}`,
             type: 'accent',
-            text: `Terminal colorway updated to "${requestedTheme.toUpperCase()}".`,
+            text: `Global system & terminal colorway updated to "${requestedTheme.toUpperCase()}".`,
           });
         } else {
           newLines.push({
             id: `out-${Date.now()}`,
             type: 'error',
-            text: `Invalid theme. Available options: default, matrix, amber, cyber, synthwave`,
+            text: `Invalid theme. Available options: default (amber), cyber, matrix, synthwave, titanium, cobalt`,
           });
         }
         break;
@@ -425,6 +443,23 @@ export function CyberTerminal() {
         });
         break;
 
+      case 'resume':
+      case 'cv':
+        window.open(profile.resumeUrl, '_blank', 'noopener,noreferrer');
+        newLines.push({
+          id: `out-${Date.now()}`,
+          type: 'accent',
+          text: (
+            <div className="my-1 text-xs">
+              <p>Opening curriculum vitae in new window...</p>
+              <p className="text-text-muted mt-0.5">
+                Direct link: <a href={profile.resumeUrl} target="_blank" rel="noreferrer" className="underline text-accent">{profile.resumeUrl} ↗</a>
+              </p>
+            </div>
+          ),
+        });
+        break;
+
       case 'audio': {
         const next = !isAudioEnabled();
         setAudioEnabled(next);
@@ -527,11 +562,11 @@ export function CyberTerminal() {
       role="dialog"
       aria-modal="true"
       aria-label="Cyber Terminal"
-      className="fixed inset-0 z-[125] flex items-center justify-center p-4 bg-ink/80 backdrop-blur-md animate-in fade-in duration-150"
+      className="fixed inset-0 z-[125] flex items-center justify-center p-2 sm:p-4 bg-ink/80 backdrop-blur-md animate-in fade-in duration-150"
       onClick={() => setOpen(false)}
     >
       <div
-        className={`w-full max-w-2xl border rounded-xl shadow-2xl overflow-hidden flex flex-col h-[540px] max-h-[88vh] font-mono text-xs animate-in zoom-in-95 duration-150 transition-colors ${currentTheme.card}`}
+        className={`w-full max-w-2xl border rounded-xl shadow-2xl overflow-hidden flex flex-col h-[540px] max-h-[92vh] sm:max-h-[88vh] font-mono text-xs animate-in zoom-in-95 duration-150 transition-colors ${currentTheme.card}`}
         onClick={(e) => e.stopPropagation()}
       >
         {/* Terminal Title Bar */}

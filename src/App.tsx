@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { useEffect, lazy, Suspense } from 'react';
 import { useRoute } from './hooks/useRoute';
 import { Nav } from './components/Nav';
 import { MeridianSpine } from './components/MeridianSpine';
@@ -11,17 +11,26 @@ import { Projects } from './sections/Projects';
 import { About } from './sections/About';
 import { Journey } from './sections/Journey';
 import { Contact } from './sections/Contact';
-import { ProjectsPage } from './pages/ProjectsPage';
 import { useDeviceCapability } from './hooks/useDeviceCapability';
 import { useTouchSwipe } from './hooks/useTouchSwipe';
 import { CommandPalette } from './components/CommandPalette';
 import { CyberTerminal } from './components/CyberTerminal';
 import { Toast } from './components/Toast';
+import { applyTheme, getSavedTheme } from './utils/theme';
+
+const ProjectsPage = lazy(() =>
+  import('./pages/ProjectsPage').then((m) => ({ default: m.ProjectsPage }))
+);
 
 function App() {
   const { prefersReducedMotion } = useDeviceCapability();
   const { isProjectsArchive, navigate } = useRoute();
   useTouchSwipe(!isProjectsArchive);
+
+  // Initialize saved theme on mount
+  useEffect(() => {
+    applyTheme(getSavedTheme(), { notify: false });
+  }, []);
 
   useEffect(() => {
     document.documentElement.classList.toggle('reduce-motion', prefersReducedMotion);
@@ -54,7 +63,9 @@ function App() {
       <Nav />
 
       {isProjectsArchive ? (
-        <ProjectsPage onNavigateHome={() => navigate('/', { scrollId: 'projects' })} />
+        <Suspense fallback={<div className="min-h-screen bg-ink flex items-center justify-center font-mono text-xs text-accent">LOADING DIRECTORY...</div>}>
+          <ProjectsPage onNavigateHome={() => navigate('/', { scrollId: 'projects' })} />
+        </Suspense>
       ) : (
         <>
           <MeridianSpine />

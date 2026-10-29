@@ -102,7 +102,7 @@ export function Manifesto() {
         {DOMAINS.map((domain) => (
           <span
             key={domain}
-            className="mono-label border border-line-strong rounded-full px-4 py-2 text-text-muted"
+            className="mono-label border border-line-strong rounded-full px-3 sm:px-4 py-1.5 sm:py-2 text-text-muted text-xs sm:text-[0.8125rem]"
           >
             {domain}
           </span>

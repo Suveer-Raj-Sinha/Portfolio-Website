@@ -13,7 +13,7 @@ export function About() {
       id="about"
       className="min-h-screen min-h-svh flex flex-col justify-center px-6 lg:pl-40 lg:pr-24 py-8 lg:py-10 relative"
     >
-      <div className="grid lg:grid-cols-[minmax(0,340px)_1fr] gap-10 lg:gap-16 items-center">
+      <div className="grid lg:grid-cols-[minmax(0,340px)_1fr] gap-8 lg:gap-16 items-center">
         {/* Left: Technical Profile HUD Card */}
         <Reveal>
           <AboutHudCard />

@@ -46,7 +46,7 @@ export function Hero() {
         <div>
           <h1
             aria-label="Hello. I'm Suveer Raj Sinha."
-            className="font-semibold leading-[0.95] tracking-tight text-[clamp(2.75rem,8vw,7rem)]"
+            className="font-semibold leading-[0.95] tracking-tight text-[clamp(2.25rem,8vw,7rem)]"
           >
             {HEADLINE_LINES.map(({ text, delay }) => (
               <SplitText
